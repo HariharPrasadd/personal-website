@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can you mathematically model group polarization?</title>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <div class="blogpost-container">
+        <div class="navigation" id="navigation">
+            <div class="nav-links">
+                <a href="../../index.html">Home</a>
+                <a href="../../about.html">About</a>
+                <a href="../../books.html">Books</a>
+                <a href="../../notes.html">Notes</a>
+                <a href="../../blog.html">Blog</a>
+                <a href="../../contact.html">Contact</a>
+            </div>
+        </div>
+
+        <h1>Can you mathematically model group polarization?</h1>
+
+        <blockquote>
+            <p>Someone should demonstrate this more mathematically, but it seems to me that if you start with a random assortment of identities, small fluctuations plus reactions should force polarization. That is, if a chance fluctuation makes environmentalists slightly more likely to support gun control, and this new bloc goes around insulting polluters and gun owners, then the gun owners affected will reactively start hating the environmentalists and insult them, the environmentalists will notice they're being attacked by gun owners and polarize even more against them, and so on until (environmentalists + gun haters) and (polluters + gun lovers) have become two relatively consistent groups. Then if one guy from the (environmentalist + gun hater) group happens to insult a Catholic, the same process starts again until it's (environmentalists + gun haters + atheists) and (polluters + gun lovers + Catholics), and so on until there are just two big groups.</p>
+            
+            <p>— <em>Scott Alexander of AstralCodexTen, in his article <a href="https://www.astralcodexten.com/p/why-i-am-not-a-conflict-theorist" class="link" target="_blank" rel="noopener noreferrer">Why I Am Not A Conflict Theorist</a></em></p>
+        </blockquote>
+
+        <p>This seems like a super interesting problem that one could model with relatively low effort - about one day's worth of focused effort at most. That is, if someone had the mathematical and computational acumen required to run a simulation like this.</p>
+
+        <p>Alternatively, you could prompt an LLM to generate the code for you (<a href="https://claude.ai/share/9decf976-0104-4373-a0ee-005b618934b5" class="link" target="_blank" rel="noopener noreferrer">which i did try</a>), but that didn't really work out all that well. The first draft of the code was decent, but it generated a static final histogram that basically went from a random distribution of opinions among agents to a supremely polarized distribution. Which is like, cool, but all the computing happened in the backend, so does anyone really care? I wanted to see more step-wise evolution so someone could look at it and go "wow! mimetic desire exists!" (I don't know if I'm using this in the correct context but it sounds cool).</p>
+
+        <p>I also think that the basic rules of the LLM-generated model are flawed (copy-pasted from <a href="https://claude.ai/share/9decf976-0104-4373-a0ee-005b618934b5" class="link" target="_blank" rel="noopener noreferrer">my conversation with claude</a>):</p>
+        <ol>
+            <li>Initialize random opinions for agents across multiple issues</li>
+            <li>For each time step and each agent:
+                <ol>
+                    <li>Identify similar and opposing agents</li>
+                    <li>Move toward similar agents' opinions (social influence)</li>
+                    <li>Move away from opposing agents' opinions (reactive polarization)</li>
+                    <li>Align opinions across issues (issue correlation)</li>
+                </ol>
+            </li>
+            <li>Track the history of all opinions for analysis</li>
+        </ol>
+
+        <p>This looks like you're basically forcing these agents to be polarized, which is not the goal of the simulation. The goal of the simulation is to <em>only</em> start with a fundamental rulset of "small fluctuations plus reactions" and then see if this results in group polarization towards the end.</p>
+
+        <p>This is my guess of what an <em>extremely basic</em> algorithm for this would look like:</p>
+        <ol>
+            <li>Create agents</li>
+            <li>Create a list of arbitrary issues, numbered issue 1, issue 2...issue n.</li>
+            <li>Let agents have "belief" for or against issues, on a scale of -1 for "against" to 1 for "for", with 0 being neutral</li>
+            <li>Make agents have "affinity" towards each other, which starts off at 0</li>
+            <li>Make agents with similar beliefs on the same issues increase affinity for each other with each chronological step, and agents with dissimilar beliefs decrease affinity with each other with chronological step</li>
+            <li>With each step increase/decrease affinity based on belief, and belief based on affinity</li>
+            <li>Observe if a number of steps into this simulation, we have polarized groups - or, in mathematical terms, if there's a strong correlation between beliefs in one issue and another. Are most agents that are <em>for</em> issue 1 <em>against</em> issue 2? Or something along those lines. If that holds true, then we can say that small fluctuations plus reactions do force polarization. This doesn't say anything about human behaviour, because we haven't yet linked this model's fundamental axioms with those of human behaviour, but it's an interesting observation nonetheless.</li>
+        </ol>
+
+        <p>Super interesting.</p>
+
+        <p>Update: I managed to make a working simulation of this! I prompted Claude with the updated algorithm, and it did a surprisingly good job of coding the simulation in one go. I tried with ChatGPT and deepseek before that, but despite underperforming on certain benchmarks and tests, Claude remains the best at coding, at least in my experience.</p>
+
+        <p>The initial simulation didn't really reflect my beliefs - it displayed an upward trend initially, but it ended up dipping back down to polarization levels below starting, which was super confusing to me. When I asked claude <em>why</em> this could be happening, one of its bullet points prompted me to realize that I was updating the beliefs randomly at <em>every step</em>, which is stupid because beliefs have persistence. (Note: I haven't modified this in the original algorithm in this pdf because I want flaws in my logic to be documented. Updated step-by-step plaintext algorithm can be found in the readme of BiasNET's <a href="https://github.com/HariharPrasadd/BiasNET" class="link" target="_blank" rel="noopener noreferrer">git repo</a>)</p>
+
+        <p>This is the word by word modification prompt that I used: "You're not supposed to repeatedly change random beliefs - beliefs should have some persistence. I think something that would work better is an initial randomisation of beliefs and then we let the model run its course and see if that ends up in belief clusters, rather than continuously randomising beliefs because that is just not how it works in the real world. Belief systems have some _persistence_, for a lack of a better word."</p>
+
+        <p>And Claude made some changes, the gist of which can be summed up with "In the new version, beliefs are initialized randomly at the start and then only change through social influence." You can see this conversation with Claude <a href="https://claude.ai/share/eb8f2e90-54e9-4888-8212-d31ef6279a90" class="link" target="_blank" rel="noopener noreferrer">here</a>.</p>
+
+        <p>I've also deployed this online <a href="https://biasnet.streamlit.app" class="link" target="_blank" rel="noopener noreferrer">here</a>.</p>
+
+        <p>Once you've played around with that a bit, if you want some help interpreting the output (apart from the line graph - that's pretty self explanatory), here's a technical overview generated by claude with a few modifications (primarily added context, better formatting, and outgoing explanatory links) added by me.</p>
+
+        <h2>Technical Overview: Agent Belief Polarization Simulation</h2>
+
+        <h3>Model Architecture</h3>
+
+        <p>The simulation models interactions between agents with beliefs on multiple issues and evolving affinities for each other. Inspired by the following quote by Scott Alexander in his post <a href="https://www.astralcodexten.com/p/why-i-am-not-a-conflict-theorist" class="link" target="_blank" rel="noopener noreferrer">Why I Am Not A Conflict Theorist</a>.</p>
+
+        <blockquote>
+            <p>Someone should demonstrate this more mathematically, but it seems to me that if you start with a random assortment of identities, small fluctuations plus reactions should force polarization. That is, if a chance fluctuation makes environmentalists slightly more likely to support gun control, and this new bloc goes around insulting polluters and gun owners, then the gun owners affected will reactively start hating the environmentalists and insult them, the environmentalists will notice they're being attacked by gun owners and polarize even more against them, and so on until (environmentalists + gun haters) and (polluters + gun lovers) have become two relatively consistent groups. Then if one guy from the (environmentalist + gun hater) group happens to insult a Catholic, the same process starts again until it's (environmentalists + gun haters + atheists) and (polluters + gun lovers + Catholics), and so on until there are just two big groups.</p>
+        </blockquote>
+
+        <h3>Core Components</h3>
+
+        <ol>
+            <li><strong>Agents</strong>: Each agent has:
+                <ul>
+                    <li>A belief vector with values [-1, 1] across n issues</li>
+                    <li>Affinity values [-1, 1] toward all other agents</li>
+                </ul>
+            </li>
+
+            <li><strong>Initialization</strong>:
+                <ul>
+                    <li>Beliefs: Randomly assigned (uniform distribution between -1 and 1)</li>
+                    <li>Affinities: All initialized to 0</li>
+                </ul>
+            </li>
+
+            <li><strong>Update Rules</strong>:
+
+                <p>a) <strong>Affinity Updates</strong>:</p>
+                <ul>
+                    <li>For each pair of agents i and j:
+                        <ul>
+                            <li>Calculate belief similarity as the <em>normalized</em> dot product of belief vectors. <a href="https://math.stackexchange.com/questions/2581097/taking-the-dot-product-of-two-normalized-vectors-unit-vectors-vs-the-dot-produ#comment7213537_2581181" class="link" target="_blank" rel="noopener noreferrer">The dot product of normalized vectors when calculated numerically is a stable way of detecting how equal two vectors are in relation to direction and sense.</a></li>
+                            <li>Increment affinity(i,j) by similarity × affinity_change_rate</li>
+                            <li>Ensure symmetry by setting affinity(j,i) = affinity(i,j)</li>
+                            <li>Constrain all affinity values to the range [-1, 1]</li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <p>b) <strong>Belief Updates</strong>:</p>
+                <ul>
+                    <li>For each agent and each issue:
+                        <ul>
+                            <li>For each other agent:
+                                <ul>
+                                    <li>If affinity is positive: adjust belief toward the other agent's belief proportional to affinity strength</li>
+                                    <li>If affinity is negative: adjust belief away from the other agent's belief proportional to affinity strength</li>
+                                </ul>
+                            </li>
+                            <li>Constrain all belief values to the range [-1, 1]</li>
+                        </ul>
+                    </li>
+                    <li>Apply all updates simultaneously to avoid order effects</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h2>Visualization Components</h2>
+
+        <h3>1. Network Graph</h3>
+        <ul>
+            <li><strong>Nodes</strong>: Agents</li>
+            <li><strong>Node Colors</strong>: Belief on first issue (red = positive, blue = negative)</li>
+            <li><strong>Edges</strong>: Significant affinities (|affinity| > 0.1)</li>
+            <li><strong>Edge Colors</strong>: Blue for positive affinity, red for negative</li>
+            <li><strong>Edge Width</strong>: Proportional to |affinity|</li>
+        </ul>
+
+        <h3>2. Belief Heatmap</h3>
+        <ul>
+            <li><strong>X-axis</strong>: Issues (1 to n)</li>
+            <li><strong>Y-axis</strong>: Agents</li>
+            <li><strong>Colors</strong>: Red = positive belief (+1), Blue = negative belief (-1)</li>
+            <li><strong>Interpretation</strong>: Each row shows one agent's beliefs across all issues</li>
+        </ul>
+
+        <h3>3. Correlation Matrix</h3>
+        <ul>
+            <li><strong>Axes</strong>: Issues</li>
+            <li><strong>Colors</strong>: Red = positive correlation, Blue = negative correlation</li>
+            <li><strong>Interpretation</strong>: Shows how beliefs on different issues have become associated</li>
+            <li><strong>Example</strong>: If cell (1,2) is bright red, agents who believe strongly in issue 1 also tend to believe strongly in issue 2</li>
+        </ul>
+
+        <h3>4. Polarization Metrics</h3>
+        <ul>
+            <li><strong>Correlation of Beliefs</strong>: 
+                <ul>
+                    <li>Calculate correlation matrix between all issue pairs</li>
+                    <li>Take the mean of the absolute values of the upper triangular portion, as the correlation matrix is equal across the diagonal. For example, (1, 2) and (2, 1) will have the same correlation value.</li>
+                    <li>Higher values indicate stronger correlations between different issues</li>
+                </ul>
+            </li>
+
+            <li><strong>Belief Distance</strong>: 
+                <ul>
+                    <li>For each pair of agents, calculate the Euclidean distance between their belief vectors</li>
+                    <li>Compute the average distance across all agent pairs</li>
+                    <li>Higher values indicate greater overall separation in belief space</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h2>Parameter Specifications</h2>
+
+        <ul>
+            <li><code>num_agents</code>: Number of agents (default: 40)</li>
+            <li><code>num_issues</code>: Number of belief dimensions (default: 5)</li>
+            <li><code>affinity_change_rate</code>: Scaling factor for affinity updates (default: 0.05)</li>
+            <li><code>positive_influence_rate</code>: Strength of positive influence (default: 0.03)</li>
+            <li><code>negative_influence_rate</code>: Strength of negative influence (default: -0.03)</li>
+        </ul>
+
+        <h2>Implementation Notes</h2>
+
+        <ol>
+            <li>The simulation runs synchronous updates to avoid order effects</li>
+            <li>No randomization after initialization ensures belief persistence</li>
+            <li>Both positive and negative influence mechanisms are included</li>
+            <li>Belief and affinity values are constrained to the range [-1, 1]</li>
+            <li>The network visualization uses force-directed layout with fixed positions</li>
+        </ol>
+
+        <p>Basically get yourself out of echo chambers, don't hate things just because people you hate love those things or vice versa, and be self-aware and cognizant of the way your beliefs and perceptions are shaped.</p>
+
+        <p>much love,<br>hari</p>
+    </div>
+</body>
+</html>

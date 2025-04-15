@@ -1,0 +1,327 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap');
+       
+:root {
+    /* Flexoki Light Color Scheme */
+    --background: rgb(255, 252, 240);
+    --foreground:rgb(16, 15, 15);
+    --accent: rgb(36, 131, 123);
+    --highlight: rgb(236, 203, 96);
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'EB Garamond', serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    height: 100vh;
+    width: 100vw;
+    font-size: 16px;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width:100%;
+}
+
+.navigation {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.nav-links a:hover{
+    background-size: 100% 2px;
+    transform: translateY(-3px);
+}
+
+.quote-container {
+    flex: 1;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.quote{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+}
+
+p {
+    max-width: 50vw;
+    text-align: center;
+}
+
+a {
+    position: relative;
+    color: var(--foreground);
+    text-decoration: none;
+    background-image: linear-gradient(to right, var(--accent), var(--accent));
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.3s ease, transform 0.3s ease;
+}
+  
+a:hover {
+    background-size: 100% 2px;
+}
+
+.link{
+    color: rgb(36, 131, 123);
+}
+
+.highlight{
+    background-color: var(--highlight);
+}
+
+.books-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.books-container h1 {
+    font-weight: 400;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+}
+
+.book-item {
+    width: 100%;
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(16, 15, 15, 0.1);
+}
+
+.book-item:last-child {
+    border-bottom: none;
+}
+
+.book-date {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: rgba(16, 15, 15, 0.7);
+}
+
+.book-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+}
+
+.book-author {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    font-style: italic;
+    color: rgba(16, 15, 15, 0.8);
+}
+
+.book-summary {
+    line-height: 1.5;
+    max-width: 90%;
+    font-size: 1rem;
+}
+
+.book-rating {
+    font-size: 0.7rem;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.1rem;
+    color: var(--accent);
+}
+
+@media (max-width: 768px) {
+    .books-container {
+        padding: 1rem;
+    }
+    
+    .book-summary {
+        max-width: 100%;
+    }
+}
+
+.notes-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.notes-container h1 {
+    font-weight: 400;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+}
+
+.note-item {
+    width: 100%;
+    margin-bottom: 4rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(16, 15, 15, 0.1);
+}
+
+.note-item:last-child {
+    border-bottom: none;
+}
+
+.note-date {
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    color: rgba(16, 15, 15, 0.7);
+}
+
+.note-quote {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.note-citation {
+    text-align: right;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    color: rgba(16, 15, 15, 0.8);
+    font-style: italic;
+}
+
+.note-reflection {
+    line-height: 1.6;
+    max-width: 95%;
+    font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+    .notes-container {
+        padding: 1rem;
+    }
+    
+    .note-reflection {
+        max-width: 100%;
+    }
+    
+    .note-quote {
+        font-size: 1.2rem;
+    }
+}
+
+.blog-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.blog-container h1 {
+    font-weight: 400;
+    font-size: 1rem;
+    margin-bottom: 3rem;
+}
+
+.blog-list {
+    width: 100%;
+}
+
+.blog-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(16, 15, 15, 0.1);
+}
+
+.blog-item:last-child {
+    border-bottom: none;
+}
+
+.blog-date {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    color: rgba(16, 15, 15, 0.7);
+}
+
+.blog-title{
+    font-size: 1rem;
+    line-height: 1.4;
+    color: var(--foreground);
+    display: inline-block;
+}
+
+@media (max-width: 768px) {
+    .blog-container {
+        padding: 1rem;
+    }
+    
+    .blog-title {
+        font-size: 1.2rem;
+    }
+}
+
+.blogpost-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.blogpost-container h1{
+    font-weight: 400;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    margin-top: 3rem;
+    color: var(--accent);
+}
+
+.blogpost-container p{
+    text-align: left;
+    width: 100%;
+    max-width: 50vw;
+}
+
+blockquote {
+    border-left: 4px solid var(--accent);
+    padding-left: 1rem;
+    margin-left: 0;
+    font-style: italic;
+    color: var(--foreground);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.blogpost-container hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid var(--foreground); /* Increased thickness */
+    width: 100%;
+}
+
+code{
+    font-size: 14px;
+}
+
