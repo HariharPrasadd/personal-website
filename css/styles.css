@@ -3,7 +3,7 @@
 :root {
     /* Flexoki Light Color Scheme */
     --background: rgb(255, 252, 240);
-    --foreground:rgb(16, 15, 15);
+    --foreground: rgb(16, 15, 15);
     --accent: rgb(36, 131, 123);
     --highlight: rgb(236, 203, 96);
 }
@@ -17,20 +17,25 @@ body, html {
     height: 100vh;
     width: 100vw;
     font-size: 16px;
+    overflow-x: hidden;
 }
 
-.container{
+.container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    width:100%;
+    width: 100%;
 }
 
+/* Navigation styles */
 .navigation {
     flex-shrink: 0;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
+    position: relative;
+    padding: 1rem 0;
 }
 
 .nav-links {
@@ -39,13 +44,41 @@ body, html {
     align-items: center;
     gap: 2rem;
     margin-top: 2rem;
+    transition: all 0.3s ease;
 }
 
-.nav-links a:hover{
+.nav-links a {
+    transition: all 0.3s ease;
+}
+
+.nav-links a:hover {
     background-size: 100% 2px;
     transform: translateY(-3px);
 }
 
+/* Hamburger menu for mobile */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 10;
+}
+
+.hamburger span {
+    width: 100%;
+    height: 3px;
+    background-color: var(--foreground);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+/* Quote container styles */
 .quote-container {
     flex: 1;
     height: 100vh;
@@ -56,12 +89,16 @@ body, html {
     align-items: center;
 }
 
-.quote{
+.quote {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 50%;
+}
+
+.quote img{
+    max-width: 100%;
 }
 
 p {
@@ -84,19 +121,20 @@ a:hover {
     background-size: 100% 2px;
 }
 
-.link{
+.link {
     color: rgb(36, 131, 123);
 }
 
-.highlight{
+.highlight {
     background-color: var(--highlight);
 }
 
+/* Books container styles */
 .books-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 0;
+    padding: 2rem;
     max-width: 700px;
     margin: 0 auto;
 }
@@ -149,21 +187,12 @@ a:hover {
     color: var(--accent);
 }
 
-@media (max-width: 768px) {
-    .books-container {
-        padding: 1rem;
-    }
-    
-    .book-summary {
-        max-width: 100%;
-    }
-}
-
+/* Notes container styles */
 .notes-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 0;
+    padding: 2rem;
     max-width: 700px;
     margin: 0 auto;
 }
@@ -211,25 +240,12 @@ a:hover {
     font-size: 1rem;
 }
 
-@media (max-width: 768px) {
-    .notes-container {
-        padding: 1rem;
-    }
-    
-    .note-reflection {
-        max-width: 100%;
-    }
-    
-    .note-quote {
-        font-size: 1.2rem;
-    }
-}
-
+/* Blog container styles */
 .blog-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 0;
+    padding: 2rem;
     max-width: 700px;
     margin: 0 auto;
 }
@@ -263,33 +279,23 @@ a:hover {
     color: rgba(16, 15, 15, 0.7);
 }
 
-.blog-title{
+.blog-title {
     font-size: 1rem;
     line-height: 1.4;
     color: var(--foreground);
     display: inline-block;
 }
 
-@media (max-width: 768px) {
-    .blog-container {
-        padding: 1rem;
-    }
-    
-    .blog-title {
-        font-size: 1.2rem;
-    }
-}
-
-.blogpost-container{
+/* Blogpost container styles */
+.blogpost-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 0;
     max-width: 700px;
     margin: 0 auto;
 }
 
-.blogpost-container h1{
+.blogpost-container h1 {
     font-weight: 400;
     font-size: 1rem;
     margin-bottom: 2rem;
@@ -297,7 +303,7 @@ a:hover {
     color: var(--accent);
 }
 
-.blogpost-container p{
+.blogpost-container p {
     text-align: left;
     width: 100%;
     max-width: 50vw;
@@ -317,11 +323,149 @@ blockquote {
     display: block;
     height: 1px;
     border: 0;
-    border-top: 1px solid var(--foreground); /* Increased thickness */
+    border-top: 1px solid var(--foreground);
     width: 100%;
 }
 
-code{
+code {
     font-size: 14px;
 }
+
+.plus-menu {
+    display: none;
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 20px;
+    top: 50%; 
+    transform: translateY(50%); 
+    cursor: pointer;
+    z-index: 10;
+}
+
+.plus-menu span {
+    position: absolute;
+    background-color: var(--foreground);
+    transition: all 0.3s ease;
+}
+
+.plus-menu .horizontal {
+    width: 100%;
+    height: 1.25px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.plus-menu .vertical {
+    width: 1.25px;
+    height: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.plus-menu.active .vertical {
+    transform: translateX(-50%) rotate(90deg);
+}
+
+/* Consolidated Media Queries */
+@media (max-width: 768px) {
+
+    .plus-menu {
+        display: block;
+    }
+
+    /* Navigation Mobile Styling */
+    .hamburger {
+        display: flex;
+    }
+    
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        flex-direction: column;
+        background-color: var(--background);
+        width: 70%;
+        height: 100vh;
+        padding: 80px 0;
+        margin: 0;
+        z-index: 5;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+    }
+    
+    .nav-links.active {
+        right: 0;
+    }
+    
+    /* Quote Container Mobile Styling */
+    .quote {
+        width: 80%;
+    }
+
+    .quote img {
+        width: 50vw; 
+    }
+
+    p {
+        max-width: 80vw;
+    }
+    
+    /* Books Container Mobile Styling */
+    .books-container {
+        padding: 1rem;
+    }
+    
+    .book-summary {
+        max-width: 100%;
+    }
+    
+    /* Notes Container Mobile Styling */
+    .notes-container {
+        padding: 1rem;
+    }
+    
+    .note-reflection {
+        max-width: 100%;
+    }
+    
+    /* Blog Container Mobile Styling */
+    .blog-container {
+        padding: 1rem;
+    }
+    
+    /* Blogpost Container Mobile Styling */
+    .blogpost-container {
+        padding: 1rem;
+    }
+    
+    .blogpost-container p {
+        max-width: 100%;
+    }
+    
+    blockquote {
+        width: 90%;
+    }
+}
+
+/* For very small screens */
+@media (max-width: 480px) {
+    .quote {
+        width: 90%;
+    }
+    
+    p {
+        max-width: 90vw;
+    }
+    
+    .hamburger {
+        top: 15px;
+        right: 15px;
+    }
+    
+    .nav-links {
+        width: 85%;
+    }
+}
+
 
