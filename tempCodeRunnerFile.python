@@ -1,17 +1,15 @@
 import os
 from datetime import datetime, timedelta
 
-# Set the start and end date
-start_date = datetime(2025, 4, 3)
-end_date = datetime.today()
+# Date range
+start_date = datetime(2025, 4, 5)
+end_date = datetime(2025, 4, 13)
 
-# Output folder (change this to your Obsidian vault's daily folder)
+# Output folder (change this to your vault's daily folder)
 output_folder = r"/Users/hariharprasad/MyDocuments/Obsidian V2/daily"
-
-# Ensure output folder exists
 os.makedirs(output_folder, exist_ok=True)
 
-# Get list of dates
+# Get the list of dates
 date_list = [start_date + timedelta(days=x) for x in range((end_date - start_date).days + 1)]
 
 for i, current_date in enumerate(date_list):
@@ -19,35 +17,42 @@ for i, current_date in enumerate(date_list):
     weekday = current_date.strftime("%A").lower()
 
     # Previous and next links
-    prev_date = date_list[i - 1] if i > 0 else None
-    next_date = date_list[i + 1] if i < len(date_list) - 1 else None
+    prev_date = current_date - timedelta(days=1)
+    next_date = current_date + timedelta(days=1)
 
-    prev_link = f"[[{prev_date.strftime('%Y-%m-%d')} ({prev_date.strftime('%A').lower()})|< previous]]" if prev_date else ""
-    next_link = f"[[{next_date.strftime('%Y-%m-%d')} ({next_date.strftime('%A').lower()})|next >]]" if next_date else ""
+    prev_link = f"[[{prev_date.strftime('%Y-%m-%d')} ({prev_date.strftime('%A').lower()})|< previous]]"
+    next_link = f"[[{next_date.strftime('%Y-%m-%d')} ({next_date.strftime('%A').lower()})|next >]]"
 
     # Tags
     tags = f"time/date/{date_str.replace('-', '/')}, time/day/{weekday}, area/daily"
 
-    # Content
+    # Content (same template each day, date-specific fields updated)
     content = f"""{date_str} ({weekday})
 
 ---
 tags: {tags}
-work: 
-good: 
-innocuous: 
-waste: 
-sleep: 
-masturbation:
-rating: 
-habits:
+work: 0
+good: 60
+innocuous: 0
+waste: 840
+sleep: 420
+masturbation: 8
+rating: 0
+habits: 
 tasks:
 notes:
+- never again will i fall this low. 
 ---
 
 Zettels: 
 
 Time: 
+
+>[!check]- 8:00am - 9:00am : Read (1h)
+>Yay.
+
+>[!fail]- 9:00am - 11:00pm : Watched instagram reels, played games, wasted time (14h)
+>What has happened to me?
 
 Tasks: 
 
@@ -62,4 +67,4 @@ Habits:
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(content)
 
-print("✅ Notes generated from 2025-04-03 to", end_date.strftime("%Y-%m-%d"))
+print(f"✅ Notes generated from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
