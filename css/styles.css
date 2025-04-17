@@ -467,3 +467,8 @@ code {
         width: 85%;
     }
 }
+
+img {
+    -webkit-user-drag: none;
+}
+  
