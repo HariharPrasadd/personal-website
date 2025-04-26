@@ -471,4 +471,9 @@ code {
 img {
     -webkit-user-drag: none;
 }
-  
+
+.frog{
+    border-radius: 8px;
+    width: 400px;
+    height: auto;
+}
