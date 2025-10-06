@@ -74,3 +74,5 @@ Allow: /img/
 
 # Crawl delay
 Crawl-delay: 2
+
+Sitemap: https://www.hariharprasad.com/sitemap.xml
