@@ -1,0 +1,76 @@
+User-agent: *
+Allow: /
+
+# Block common scrapers and bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: BLEXBot
+Disallow: /
+
+# Block AI training scrapers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+# Block other common scrapers
+User-agent: Scrapy
+Disallow: /
+
+User-agent: wget
+Disallow: /
+
+User-agent: curl
+Disallow: /
+
+# Allow legitimate search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Main pages
+Allow: /index.html
+Allow: /about.html
+Allow: /books.html
+Allow: /notes.html
+Allow: /blog.html
+Allow: /contact.html
+
+# Blog posts
+Allow: /pages/blog/
+
+# Static assets
+Allow: /css/
+Allow: /js/
+Allow: /img/
+
+# Sitemap (you can add this when you create one)
+# Sitemap: https://yourdomain.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 2
