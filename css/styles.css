@@ -1,11 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600&display=swap');
        
 :root {
+    /* Flexoki Dark Color Scheme 
+    --background: rgb(16, 15, 15);
+    --foreground: rgb(206, 205, 195);
+    --accent: rgb(188, 82, 21);
+    --highlight: rgb(175, 48, 41);
+    */
+
     /* Flexoki Light Color Scheme */
     --background: rgb(255, 252, 240);
     --foreground: rgb(16, 15, 15);
     --accent: rgb(36, 131, 123);
-    --highlight: rgb(236, 203, 96);
+    --highlight: rgb(208, 162, 21);
+    
 }
 
 body, html {
@@ -122,7 +130,7 @@ a:hover {
 }
 
 .link {
-    color: rgb(36, 131, 123);
+    color: var(--accent);
 }
 
 .highlight {
