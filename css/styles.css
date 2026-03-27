@@ -317,6 +317,74 @@ a:hover {
     max-width: 50vw;
 }
 
+.footnote-ref {
+    font-size: 0.75em;
+    line-height: 0;
+    vertical-align: super;
+}
+
+.footnote-ref a,
+.footnote-backref {
+    color: var(--accent);
+}
+
+.footnote-popup {
+    position: fixed;
+    z-index: 1000;
+    max-width: min(32rem, calc(100vw - 2rem));
+    padding: 0.75rem 0.9rem;
+    background-color: rgba(255, 252, 240, 0.98);
+    border: 1px solid rgba(16, 15, 15, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(16, 15, 15, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.footnote-popup.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.footnote-popup p {
+    margin: 0;
+    max-width: 100%;
+    text-align: left;
+}
+
+.footnote-popup a {
+    color: var(--accent);
+}
+
+.footnotes {
+    width: 100%;
+    max-width: 50vw;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(16, 15, 15, 0.15);
+}
+
+.footnotes ol {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.footnotes li {
+    margin-bottom: 1rem;
+}
+
+.footnotes p {
+    max-width: 100%;
+    margin: 0;
+    line-height: 1.5;
+}
+
 blockquote {
     border-left: 4px solid var(--accent);
     padding-left: 1rem;
@@ -449,6 +517,14 @@ code {
     
     .blogpost-container p {
         max-width: 100%;
+    }
+
+    .footnotes {
+        max-width: 100%;
+    }
+
+    .footnote-popup {
+        display: none;
     }
     
     blockquote {
