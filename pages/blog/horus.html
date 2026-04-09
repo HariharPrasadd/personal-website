@@ -19,6 +19,32 @@
     <meta name="theme-color" content="#ffffff">
 
     <script defer src="../../js/script.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral',
+            securityLevel: 'loose'
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const mermaidBlocks = document.querySelectorAll('pre > code.language-mermaid');
+
+            for (const [index, block] of mermaidBlocks.entries()) {
+                const pre = block.parentElement;
+                const container = document.createElement('div');
+                const id = `mermaid-diagram-${index}`;
+                container.className = 'mermaid';
+                container.textContent = block.textContent;
+                pre.replaceWith(container);
+                await mermaid.run({
+                    nodes: [container]
+                });
+                container.id = id;
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="blogpost-container">
