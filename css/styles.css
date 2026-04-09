@@ -385,13 +385,9 @@ a:hover {
 .horus-post h3,
 .horus-post h4 {
     text-align: center;
+    color: var(--accent);
     font-size: 1rem;
     font-weight: 400;
-}
-
-.horus-post h1,
-.horus-post .numbered-heading {
-    color: var(--accent);
 }
 
 .footnote-ref {

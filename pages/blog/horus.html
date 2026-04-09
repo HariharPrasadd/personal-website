@@ -181,7 +181,7 @@
 
         <hr>
 
-        <h2 class="numbered-heading">1. Core Design Principles</h2>
+        <h2>1. Core Design Principles</h2>
 
         <ul>
             <li><strong>Plug-and-play</strong> - swap any component (grounding model, backbone VLM, OS control layer) without touching the rest</li>
@@ -193,7 +193,7 @@
 
         <hr>
 
-        <h2 class="numbered-heading">2. Tech Stack</h2>
+        <h2>2. Tech Stack</h2>
 
         <table>
             <thead>
@@ -281,7 +281,7 @@
 
         <hr>
 
-        <h2 class="numbered-heading">3. System Architecture</h2>
+        <h2>3. System Architecture</h2>
         <pre><code class="language-mermaid">flowchart TD
     A([User Task]) --&gt; B[TypeScript Frontend]
     B --&gt;|Tauri IPC| C[Rust Backend
@@ -311,7 +311,7 @@
 
         <hr>
 
-        <h2 class="numbered-heading">4. Perception Layer</h2>
+        <h2>4. Perception Layer</h2>
 
         <h3>What OmniParser actually is</h3>
 
@@ -379,7 +379,7 @@ class UIElement:
 
         <hr>
 
-        <h2 class="numbered-heading">5. Action DSL</h2>
+        <h2>5. Action DSL</h2>
 
         <h3>Why a DSL</h3>
 
@@ -457,7 +457,7 @@ async def execute_action(
 
         <hr>
 
-        <h2 class="numbered-heading">6. Agent Loop</h2>
+        <h2>6. Agent Loop</h2>
 
         <h3>Core principle</h3>
 
@@ -530,7 +530,7 @@ The save dialog is open. Element 4 is the confirm button. I should click it.
 
         <hr>
 
-        <h2 class="numbered-heading">7. Context Management</h2>
+        <h2>7. Context Management</h2>
 
         <h3>The problem</h3>
 
@@ -569,7 +569,7 @@ The save dialog is open. Element 4 is the confirm button. I should click it.
 
         <hr>
 
-        <h2 class="numbered-heading">8. Subagent Architecture</h2>
+        <h2>8. Subagent Architecture</h2>
 
         <h3>When to decompose</h3>
 
@@ -611,7 +611,7 @@ The save dialog is open. Element 4 is the confirm button. I should click it.
 
         <hr>
 
-        <h2 class="numbered-heading">9. Confidence Gating</h2>
+        <h2>9. Confidence Gating</h2>
 
         <h3>Why not multi-rollout (BJudge style)</h3>
 
@@ -640,7 +640,7 @@ The save dialog is open. Element 4 is the confirm button. I should click it.
 
         <hr>
 
-        <h2 class="numbered-heading">10. OSWorld Integration</h2>
+        <h2>10. OSWorld Integration</h2>
 
         <h3>How OSWorld works</h3>
         <pre><code class="language-mermaid">sequenceDiagram
@@ -683,7 +683,7 @@ score = env.evaluate()</code></pre>
 
         <hr>
 
-        <h2 class="numbered-heading">11. Development Roadmap (Ablation Ladder)</h2>
+        <h2>11. Development Roadmap (Ablation Ladder)</h2>
 
         <p>Each phase is a discrete experiment. Score before and after. If the number doesn't move, cut it.</p>
 
@@ -702,7 +702,7 @@ score = env.evaluate()</code></pre>
 
         <hr>
 
-        <h2 class="numbered-heading">12. Open Questions</h2>
+        <h2>12. Open Questions</h2>
 
         <table>
             <thead>
@@ -746,7 +746,7 @@ score = env.evaluate()</code></pre>
             </tbody>
         </table>
 
-        <h2 class="numbered-heading">13. Development Notes</h2>
+        <h2>13. Development Notes</h2>
 
         <p>Core loop is observe -&gt; reason -&gt; execute.</p>
 
