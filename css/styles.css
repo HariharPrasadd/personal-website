@@ -311,10 +311,73 @@ a:hover {
     color: var(--accent);
 }
 
+.blogpost-container h2,
+.blogpost-container h3,
+.blogpost-container h4 {
+    width: 100%;
+    max-width: 50vw;
+    text-align: left;
+    font-weight: 500;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
 .blogpost-container p {
     text-align: left;
     width: 100%;
     max-width: 50vw;
+}
+
+.blogpost-container ul,
+.blogpost-container ol {
+    width: 100%;
+    max-width: 50vw;
+    padding-left: 1.5rem;
+    box-sizing: border-box;
+}
+
+.blogpost-container li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.blogpost-container table {
+    width: 100%;
+    max-width: 50vw;
+    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    box-sizing: border-box;
+}
+
+.blogpost-container th,
+.blogpost-container td {
+    border-bottom: 1px solid rgba(16, 15, 15, 0.12);
+    padding: 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.blogpost-container th {
+    font-weight: 600;
+}
+
+.blogpost-container pre {
+    width: 100%;
+    max-width: 50vw;
+    overflow-x: auto;
+    background-color: rgba(16, 15, 15, 0.04);
+    border: 1px solid rgba(16, 15, 15, 0.08);
+    border-radius: 8px;
+    padding: 1rem;
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.blogpost-container pre code {
+    font-size: 0.9rem;
+    white-space: pre;
 }
 
 .footnote-ref {
@@ -516,6 +579,16 @@ code {
     }
     
     .blogpost-container p {
+        max-width: 100%;
+    }
+
+    .blogpost-container h2,
+    .blogpost-container h3,
+    .blogpost-container h4,
+    .blogpost-container ul,
+    .blogpost-container ol,
+    .blogpost-container table,
+    .blogpost-container pre {
         max-width: 100%;
     }
 

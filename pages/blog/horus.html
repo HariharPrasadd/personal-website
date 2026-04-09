@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <title>Horus Architecture</title>
+    <meta name="description" content="Horus Architecture">
+    <link rel="stylesheet" href="../../css/styles.css">
+
+    <link rel="icon" href="../../img/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../../img/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../../img/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../img/apple-touch-icon.png">
+
+    <link rel="manifest" href="../../img/site.webmanifest">
+    <meta name="theme-color" content="#ffffff">
+
+    <script defer src="../../js/script.js"></script>
+</head>
+<body>
+    <div class="blogpost-container">
+        <div id="navigation-placeholder"></div>
+        <div class="blog-date">March 20th, 2026</div><br>
+
+        <h2>Reading List</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Paper</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td><a href="https://arxiv.org/pdf/2504.00906" class="link">Agent S2</a></td>
+                    <td>Probably best reference for agentic CUA architecture. Mixture-of-Grounding, responsibilities split between specialized subagents, and more.</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td><a href="https://arxiv.org/pdf/2411.18279" class="link">LLM Brained GUI Agents Survey</a></td>
+                    <td>Good general survey.</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td><a href="https://arxiv.org/pdf/2512.13438" class="link">UIFormer</a></td>
+                    <td>Functionally useless - optimized representation of UI trees are not relevant to HORUS since a11y trees are not universally guaranteed access across systems and we're aiming to be vision only.</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td><a href="https://arxiv.org/pdf/2510.02250" class="link">Agent S3 (Scaling Agents for Computer Use)</a></td>
+                    <td>Multiple rollouts + Best-of-N judge. Fully benchmark-maxxing, useless in real world scenarios.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <h2>Ideas</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Idea</th>
+                    <th>References</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>State space exploration - model previous actions and states as a graph</td>
+                    <td><a href="https://arxiv.org/abs/2309.08172" class="link">LASER</a>, <a href="https://arxiv.org/pdf/2407.01476" class="link">Search Agent</a></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Child-parent agent architecture</td>
+                    <td><a href="https://arxiv.org/pdf/2402.07939" class="link">UFO</a>, <a href="https://arxiv.org/pdf/2504.14603" class="link">UFO 2</a></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Reasoning and Action Loop</td>
+                    <td><a href="https://arxiv.org/abs/2210.03629" class="link">ReACT</a></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Set-of-Mark prompting for grounding</td>
+                    <td><a href="https://arxiv.org/abs/2310.11441" class="link">Set-of-Mark</a></td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>Domain Specific Language (DSL) to constrain output space of the model</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>Interleaved thinking: think → tool call → tool result → think (per action), instead of think → all tool calls → response</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <hr>
+
+        <h2>Possible Grounding Models</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Model</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>TinyClick</td>
+                    <td>Rejected</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>OmniParser</td>
+                    <td>Rejected</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>UI-TARS</td>
+                    <td>Rejected</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>OS-Atlas</td>
+                    <td>Rejected</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>OmniParser-v2</td>
+                    <td>Finalized</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h1>Horus Architecture</h1>
+
+        <blockquote>
+            <p>Horus is an open-source, plug-and-play computer use agent (CUA). It can turn any LLM with vision and language capabilities into a computer use agent.</p>
+        </blockquote>
+
+        <hr>
+
+        <h2>1. Core Design Principles</h2>
+
+        <ul>
+            <li><strong>Plug-and-play</strong> - swap any component (grounding model, backbone VLM, OS control layer) without touching the rest</li>
+            <li><strong>Local-first</strong> - perception runs locally, reasoning can be local or API</li>
+            <li><strong>Benchmark-driven</strong> - every architectural addition must move OSWorld score, otherwise it's cut</li>
+            <li><strong>License-clean</strong> - AGPL components isolated behind process boundaries, Horus core targets MIT/Apache 2.0</li>
+            <li><strong>No multi-rollout</strong> - single rollout with recovery, not best-of-N (incompatible with real deployment)</li>
+        </ul>
+
+        <hr>
+
+        <h2>2. Tech Stack</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Layer</th>
+                    <th>Language</th>
+                    <th>Responsibility</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Frontend</td>
+                    <td>TypeScript + React</td>
+                    <td>Task config, run history, live action feed, settings</td>
+                </tr>
+                <tr>
+                    <td>Desktop shell</td>
+                    <td>Rust (Tauri 2.0)</td>
+                    <td>OS control, screenshot capture, input injection, IPC bridge</td>
+                </tr>
+                <tr>
+                    <td>Agent orchestration</td>
+                    <td>Python (FastAPI)</td>
+                    <td>Agent loop, subagents, context management, tool routing</td>
+                </tr>
+                <tr>
+                    <td>Perception</td>
+                    <td>Python</td>
+                    <td>OmniParser, grounding, SoM rendering</td>
+                </tr>
+                <tr>
+                    <td>Model calls</td>
+                    <td>Python</td>
+                    <td>Anthropic/OpenRouter SDK, structured generation</td>
+                </tr>
+                <tr>
+                    <td>IPC</td>
+                    <td>Tauri commands + localhost HTTP</td>
+                    <td>Frontend↔Rust, Rust↔Python</td>
+                </tr>
+                <tr>
+                    <td>Distribution</td>
+                    <td>Tauri bundler</td>
+                    <td>.dmg / .exe / .AppImage</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Inference Backends</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Provider</th>
+                    <th>Type</th>
+                    <th>Compatibility</th>
+                    <th>Vision</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Anthropic</td><td>Hosted API</td><td>Native SDK only</td><td>✓</td></tr>
+                <tr><td>OpenAI</td><td>Hosted API</td><td>OpenAI-compatible</td><td>✓</td></tr>
+                <tr><td>OpenRouter</td><td>Hosted aggregator</td><td>OpenAI-compatible</td><td>Model-dependent</td></tr>
+                <tr><td>Ollama</td><td>Local server</td><td>OpenAI-compatible</td><td>Model-dependent</td></tr>
+                <tr><td>vLLM</td><td>Local server</td><td>OpenAI-compatible</td><td>Model-dependent</td></tr>
+                <tr><td>LM Studio</td><td>Local GUI + server</td><td>OpenAI-compatible</td><td>Model-dependent</td></tr>
+                <tr><td>Jan.ai</td><td>Local GUI + server</td><td>OpenAI-compatible</td><td>Model-dependent</td></tr>
+                <tr><td>Llama.cpp server</td><td>Local server</td><td>OpenAI-compatible</td><td>Model-dependent</td></tr>
+                <tr><td>Together AI</td><td>Hosted API</td><td>OpenAI-compatible</td><td>✓</td></tr>
+                <tr><td>Fireworks AI</td><td>Hosted API</td><td>OpenAI-compatible</td><td>✓</td></tr>
+                <tr><td>Groq</td><td>Hosted API</td><td>OpenAI-compatible</td><td>Limited</td></tr>
+                <tr><td>Mistral</td><td>Hosted API</td><td>OpenAI-compatible</td><td>Limited</td></tr>
+                <tr><td>Google Gemini</td><td>Hosted API</td><td>Partial</td><td>✓</td></tr>
+                <tr><td>AWS Bedrock</td><td>Hosted API</td><td>Partial</td><td>✓</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Why not Electron?</h3>
+        <p>Tauri uses the OS-native WebView + Rust backend. Result: ~10MB app vs ~200MB Electron bundle.</p>
+        <p>Rust also gives native OS API access for input injection without Node.js addon complexity.</p>
+
+        <h3>Why Python for the brain?</h3>
+        <p>The entire ML ecosystem (OmniParser, fastembed, smolagents, anthropic SDK) is Python.</p>
+        <p>Fighting this is not worth it. Rust handles the parts Python is bad at (OS calls, latency-sensitive input).</p>
+
+        <hr>
+
+        <h2>3. System Architecture</h2>
+        <pre><code class="language-mermaid">flowchart TD
+    A([User Task]) --&gt; B[TypeScript Frontend]
+    B --&gt;|Tauri IPC| C[Rust Backend
+    OS Control Layer]
+    C --&gt;|localhost HTTP| D[Python FastAPI
+    Agent Service]
+    D --&gt; E[Orchestrator Agent]
+    E --&gt; F{Task Complexity}
+    F --&gt;|Simple| G[Single Agent Loop]
+    F --&gt;|Complex| H[Subagent Decomposition]
+    H --&gt; I[Subagent 1]
+    H --&gt; J[Subagent 2]
+    H --&gt; K[Subagent N]
+    I &amp; J &amp; K --&gt;|Structured Summary| E
+    G --&gt; L[Perception Layer]
+    E --&gt; L
+    L --&gt; M[OmniParser Sidecar
+    YOLO + Florence-2]
+    M --&gt;|annotated screenshot + element list| O[Backbone VLM
+    OpenRouter / Ollama / vLLM / direct API]
+    O --&gt;|reasoning + action DSL| P[Confidence Gate]
+    P --&gt;|pass| Q[Action Executor]
+    P --&gt;|fail| R[Recovery Handler]
+    R --&gt;|retry from last verified state| E
+    Q --&gt;|Execution Backend\nRust / pyautogui / OSWorld| S[OS]
+    S --&gt;|new screenshot| L</code></pre>
+
+        <hr>
+
+        <h2>4. Perception Layer</h2>
+
+        <h3>What OmniParser actually is</h3>
+
+        <p>Two models, not one:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Architecture</th>
+                    <th>Size</th>
+                    <th>License</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>icon_detect</code></td><td>YOLOv8 Nano fine-tuned on UI</td><td>~100MB</td><td>AGPL</td><td>Detects all interactive regions</td></tr>
+                <tr><td><code>icon_caption</code></td><td>Florence-2 Base</td><td>~230MB</td><td>MIT</td><td>Labels each detected region semantically</td></tr>
+            </tbody>
+        </table>
+
+        <p>Total: ~330MB. Runs locally. Not heavy.</p>
+
+        <h3>What it returns</h3>
+
+        <p>A <strong>flat list</strong> - no tree, no hierarchy:</p>
+        <pre><code class="language-json">[
+  { "id": 1, "bbox": [120, 45, 200, 65], "label": "File menu" },
+  { "id": 2, "bbox": [1380, 870, 1460, 910], "label": "Save button" },
+  { "id": 3, "bbox": [340, 200, 890, 400], "label": "text editor area" }
+]</code></pre>
+
+        <h3>Why a parser beats referent-style grounding for Horus</h3>
+
+        <p>Referent-style grounding (OS-Atlas, UGround etc.) takes a screenshot + query → returns one click point.</p>
+        <p>Parser style takes a screenshot → returns ALL interactive elements exhaustively.</p>
+        <p>The parser argument: you cannot trust any VLM - including Sonnet or GPT-4o - to reliably locate a 16px checkbox in a dense UI. Offloading exhaustive detection to a specialized model means the reasoning model never has to "see" the screen carefully. It just reasons over a structured list. More reliable division of labor.</p>
+
+        <h3>SoM (Set-of-Mark) rendering</h3>
+
+        <p>After OmniParser returns the element list, numbered markers are drawn directly onto the screenshot:</p>
+        <pre><code>Screenshot → OmniParser → element list → SoM renderer → annotated screenshot</code></pre>
+
+        <p>The reasoning model receives BOTH:</p>
+        <ul>
+            <li>The annotated screenshot (visual - sees the markers)</li>
+            <li>The element list as text (structural - can reason over labels)</li>
+        </ul>
+
+        <p>Two aligned representations of the same UI state. Consistently the highest-signal input format across grounding benchmarks.</p>
+
+        <h3>Grounding interface (swappable)</h3>
+        <pre><code class="language-python">class GroundingBackend(Protocol):
+    def parse(self, screenshot: PIL.Image) -&gt; list[UIElement]:
+        ...
+
+@dataclass
+class UIElement:
+    id: int
+    bbox: tuple[int, int, int, int]  # x1, y1, x2, y2
+    label: str
+    center: tuple[int, int]          # computed from bbox</code></pre>
+
+        <p>OmniParser is the default implementation. Any alternative (Florence-2 only, accessibility tree, OS-Atlas) implements the same interface. Horus core never imports OmniParser directly - it calls the interface. This also resolves the AGPL concern: OmniParser runs as a separate sidecar process, Horus talks to it over HTTP. Inter-process communication is not linking.</p>
+
+        <hr>
+
+        <h2>5. Action DSL</h2>
+
+        <h3>Why a DSL</h3>
+
+        <p>Natural language action output = unparseable, ambiguous, inconsistent across models.</p>
+        <p>A grammar constrains the output space so actions either parse or they don't. No ambiguity.</p>
+
+        <h3>Grammar</h3>
+        <pre><code>action     ::= click(id)
+             | type(text)
+             | scroll(dir, amount)
+             | hotkey(keys)
+             | select(id)
+             | drag(from_id, to_id)
+             | wait(ms)
+             | done(result)
+             | fail(reason)
+
+id         ::= integer          -- references OmniParser element ID
+dir        ::= "up" | "down" | "left" | "right"
+amount     ::= integer          -- pixels
+keys       ::= string           -- e.g. "cmd+s", "ctrl+z"
+text       ::= string
+result     ::= string
+reason     ::= string</code></pre>
+
+        <p><strong>Note</strong>: not finalized. will refer to OSWorld action space to see if this language is enough and update throughout development.</p>
+
+        <h3>How element IDs become clicks</h3>
+
+        <p>The model never outputs raw coordinates. It outputs element IDs. The execution backend resolves them and performs the action - the agent loop never touches the OS directly.</p>
+
+        <pre><code class="language-python">class ExecutionBackend(Protocol):
+    async def click(self, x: int, y: int) -&gt; None: ...
+    async def type_text(self, text: str) -&gt; None: ...
+    async def hotkey(self, keys: str) -&gt; None: ...
+    async def screenshot(self) -&gt; PIL.Image: ...
+
+async def execute_action(
+    action: Action,
+    elements: list[UIElement],
+    backend: ExecutionBackend
+) -&gt; None:
+    if action.type == "click":
+        element = elements[action.id]
+        x, y = element.center          # resolved from bounding box
+        await backend.click(x, y)      # backend handles OS call
+    elif action.type == "type":
+        await backend.type_text(action.text)
+    elif action.type == "hotkey":
+        await backend.hotkey(action.keys)</code></pre>
+
+        <p>The backend is swappable behind the interface - the agent loop never changes:</p>
+        <pre><code>ExecutionBackend
+├── PyAutoGUIBackend      - local dev, fast iteration
+├── RustBackend           - production Tauri app
+├── OSWorldBackend        - benchmark harness
+└── VNCBackend            - remote machine control</code></pre>
+
+        <p>The model reasons semantically ("click the Save button → id 2"), the agent loop resolves the ID to coordinates, the execution backend handles the OS call. Three clean layers, none of which know about each other.</p>
+
+        <h3>OSWorld action space alignment</h3>
+
+        <p>OSWorld expects this format:</p>
+        <pre><code class="language-python">{
+    "action_type": "click",
+    "x": 1420,
+    "y": 890
+}</code></pre>
+
+        <p>The DSL maps to this trivially - element ID → center coordinates → OSWorld format. OSWorld compatibility is free if you build the DSL correctly from day one.</p>
+
+        <h3>Constrained generation</h3>
+
+        <p>If the user is running a local model, they can use Outlines or equivalent to enforce the grammar at the token-sampling level through constrained sampling. The model physically cannot produce a malformed action token. No output parsing failures. For API calls, we can validate return schema programmatically and send back an error message.</p>
+
+        <hr>
+
+        <h2>6. Agent Loop</h2>
+
+        <h3>Core principle</h3>
+
+        <p>One API call = one think + one action. The loop structure enforces interleaved reasoning without any model-specific beta headers or API features. Works with any OpenRouter model.</p>
+
+        <h3>Single call structure</h3>
+        <pre><code class="language-python">SYSTEM = """
+You are a computer use agent.
+You will receive:
+- A screenshot with numbered markers on interactive elements
+- A list of those elements with their labels
+- The task you are completing
+- The history of actions taken so far
+
+Reason about the current state, then output exactly one action on the last line as JSON.
+Valid actions: click(id), type(text), scroll(dir, amount), hotkey(keys), done(result), fail(reason)
+
+Example output:
+The save dialog is open. Element 4 is the confirm button. I should click it.
+{"action": "click", "id": 4}
+"""</code></pre>
+
+        <p>Each call produces: reasoning (free text) + action (JSON on last line). Parse the JSON off the bottom.</p>
+
+        <h3>Loop implementation reference</h3>
+        <pre><code class="language-python">async def agent_loop(task: str) -&gt; str:
+    messages = [{"role": "user", "content": task}]
+
+    while True:
+        # 1. capture screen
+        screenshot = capture_screenshot()
+
+        # 2. perception
+        elements = grounding_backend.parse(screenshot)
+        annotated = som_renderer.render(screenshot, elements)
+
+        # 3. build context
+        messages[-1]["content"] = build_context(
+            screenshot=annotated,
+            elements=elements,
+            task=task,
+            history=messages
+        )
+
+        # 4. model call - one think + one action
+        response = await call_model(messages)
+        reasoning, action = parse_response(response.content)
+
+        # 5. append full turn to history
+        messages.append({"role": "assistant", "content": response.content})
+
+        # 6. confidence gate
+        if not confidence_check(action, elements):
+            await recovery_handler(messages)
+            continue
+
+        # 7. execute
+        if action.type == "done":
+            return action.result
+        if action.type == "fail":
+            raise AgentFailure(action.reason)
+
+        result = execute_action(action, elements)
+
+        # 8. feed result back
+        messages.append({
+            "role": "user",
+            "content": f"Action executed. Result: {result}"
+        })</code></pre>
+
+        <hr>
+
+        <h2>7. Context Management</h2>
+
+        <h3>The problem</h3>
+
+        <p>Each step adds to history:</p>
+        <ul>
+            <li>Reasoning trace (verbose text)</li>
+            <li>Action JSON</li>
+            <li>Tool result</li>
+            <li>Screenshot (extremely token-heavy)</li>
+        </ul>
+
+        <p>A 30-step task with raw screenshots at every step blows most context windows and costs a lot.</p>
+
+        <h3>Strategy: four-layer compression</h3>
+        <pre><code class="language-mermaid">flowchart LR
+    A[Raw trajectory] --&gt; B{Step age}
+    B --&gt;|Last 3 steps| C[Full screenshot + full reasoning]
+    B --&gt;|Steps 4-10| D[Structured diff, what changed only]
+    B --&gt;|Steps 11-20| E[Text summary, no screenshot]
+    B --&gt;|Steps 20+| F[Single paragraph, high level only]</code></pre>
+
+        <p><strong>Write</strong> - externalize state to a scratchpad file, not just context</p>
+        <p><strong>Select</strong> - retrieve only relevant history for current step</p>
+        <p><strong>Compress</strong> - summarize old trajectory segments, drop raw screenshots</p>
+        <p><strong>Isolate</strong> - subagents handle their own context, return summaries only</p>
+
+        <h3>Screenshot compression</h3>
+
+        <p>Instead of passing full screenshots for old steps, pass structured diffs:</p>
+        <pre><code class="language-python"># Instead of: [screenshot at step 8]
+# Pass: "Step 8: File dialog closed. Text field now shows '/Users/hari/docs'. Button 'Open' appeared."</code></pre>
+
+        <p>OmniParser makes this tractable - diff the element lists between steps, describe what appeared/disappeared/changed. Dramatically cheaper than pixel data.</p>
+
+        <p><strong>Note</strong>: Great idea. Should be top of mind during implementation.</p>
+
+        <hr>
+
+        <h2>8. Subagent Architecture</h2>
+
+        <h3>When to decompose</h3>
+
+        <p>The orchestrator decomposes tasks it classifies as multi-phase. Each subagent gets an isolated context window with only what it needs.</p>
+
+        <pre><code class="language-mermaid">flowchart TD
+    A[Orchestrator
+    full task context] --&gt;|subtask 1 brief| B[Subagent 1
+    isolated context]
+    A --&gt;|subtask 2 brief| C[Subagent 2
+    isolated context]
+    A --&gt;|subtask 3 brief| D[Subagent 3
+    isolated context]
+    B --&gt;|structured summary| A
+    C --&gt;|structured summary| A
+    D --&gt;|structured summary| A
+    A --&gt; E[Final result]</code></pre>
+
+        <p><strong>Note</strong>: Look into alternative agent architectures, like slate's <a href="https://randomlabs.ai/blog/slate" class="link">thread weaving and episodes</a> Read about <a href="https://arxiv.org/abs/2210.03629" class="link">ReACT</a> and <a href="https://arxiv.org/pdf/2512.24601" class="link">RLM</a> (<a href="https://www.primeintellect.ai/blog/rlm" class="link">Prime Intellect Blog</a>).</p>
+
+        <h3>What each subagent receives</h3>
+        <pre><code class="language-python">subagent_context = {
+    "global_task": "Book a flight from Delhi to Tokyo for March 28",
+    "your_subtask": "Navigate to Google Flights and find available flights",
+    "current_screen": annotated_screenshot,
+    "elements": element_list,
+    # nothing else - no full orchestrator history
+}</code></pre>
+
+        <h3>What it returns</h3>
+        <pre><code class="language-python">subagent_result = {
+    "subtask": "Navigate to Google Flights and find available flights",
+    "status": "completed",
+    "summary": "Opened Google Flights. Found 3 available flights on March 28. Cheapest is Air India at ₹45,000 departing 06:30.",
+    "verified_state": "Flight results page showing 3 options"
+}</code></pre>
+
+        <p>The orchestrator never sees raw subagent trajectories. Only summaries. Context stays lean.</p>
+
+        <hr>
+
+        <h2>9. Confidence Gating</h2>
+
+        <h3>Why not multi-rollout (BJudge style)</h3>
+
+        <p>Multi-rollout (run N agents, pick best) is a benchmark-maximizing technique. In real deployment:</p>
+        <ul>
+            <li>Most tasks have side effects (you can't book 5 flights and pick one)</li>
+            <li>N× latency and cost</li>
+            <li>Judge is still just another model</li>
+        </ul>
+
+        <h3>Confidence gate instead</h3>
+
+        <p>Score confidence at key checkpoints - after navigation, after form interactions, after state-changing actions. Not every step.</p>
+        <pre><code class="language-python">def confidence_check(action: Action, elements: list[UIElement], history: list) -&gt; bool:
+    # Hard checks
+    if action.type == "click" and action.id not in [e.id for e in elements]:
+        return False  # element doesn't exist on screen
+
+    # Soft checks - ask model to self-assess
+    score = self_assessment_call(action, elements, history)
+    return score &gt;= CONFIDENCE_THRESHOLD</code></pre>
+
+        <p>On failure: attempt local recovery (go back, retry from last verified state) before full restart. Single rollout, recoverable not restartable.</p>
+
+        <p><strong>Note</strong>: Think about comprehensively enumerating different types of confident gates and verbose error handling that returns error messages to the orchestrator instead of crashing.</p>
+
+        <hr>
+
+        <h2>10. OSWorld Integration</h2>
+
+        <h3>How OSWorld works</h3>
+        <pre><code class="language-mermaid">sequenceDiagram
+    participant O as OSWorld Controller
+    participant V as VirtualBox VM
+    participant H as Horus Agent
+
+    O-&gt;&gt;V: Reset to task snapshot
+    O-&gt;&gt;H: Send task instruction
+    loop Agent loop
+        H-&gt;&gt;V: get_screenshot()
+        V--&gt;&gt;H: PIL Image
+        H-&gt;&gt;H: Perceive + reason + act
+        H-&gt;&gt;V: execute_action(action_dict)
+    end
+    O-&gt;&gt;V: Evaluate final state
+    O--&gt;&gt;H: Score</code></pre>
+
+        <h3>Minimal integration</h3>
+        <pre><code class="language-python">from desktop_env.envs.desktop_env import DesktopEnv
+
+env = DesktopEnv(action_space="computer_13")
+obs, info = env.reset(task_config=task)
+
+while True:
+    screenshot = obs["screenshot"]        # PIL Image - goes straight to OmniParser
+    instruction = obs["instruction"]
+
+    action = horus_agent.predict(screenshot, instruction)   # your agent
+    obs, reward, done, info = env.step(action)
+
+    if done:
+        break
+
+score = env.evaluate()</code></pre>
+
+        <p>Horus' agent output maps to OSWorld's 13-action format via the DSL resolver. OSWorld compatibility is a one-day integration, not a week.</p>
+
+        <p><strong>Note</strong>: This ties into how the backend parses actions into different destinations, as discussed in [[#How element IDs become clicks]].</p>
+
+        <hr>
+
+        <h2>11. Development Roadmap (Ablation Ladder)</h2>
+
+        <p>Each phase is a discrete experiment. Score before and after. If the number doesn't move, cut it.</p>
+
+        <pre><code class="language-mermaid">flowchart TD
+    P0["**Phase 0 - Baseline**:&lt;br&gt;&lt;br&gt;Raw vision loop, no grounding, Sonnet vision + pyautogui&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P1["**Phase 1 - Action DSL**:&lt;br&gt;&lt;br&gt;Constrain output space&lt;br&gt;&lt;br&gt;Expected: +consistency, fewer parse failures&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P2["**Phase 2 - OmniParser**:&lt;br&gt;&lt;br&gt;Add SoM grounding&lt;br&gt;&lt;br&gt;Expected: +accuracy on dense UIs&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P3["**Phase 3 - Interleaved reasoning**:&lt;br&gt;&lt;br&gt;One think per action&lt;br&gt;&lt;br&gt;Expected:+recovery from unexpected states&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P4["**Phase 4 - Context compression**:&lt;br&gt;&lt;br&gt;Summarise old trajectory&lt;br&gt;&lt;br&gt;Expected: +long-horizon task completion&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P5["**Phase 5 - Subagent decomposition**:&lt;br&gt;&lt;br&gt;Isolated context per subtask&lt;br&gt;&lt;br&gt;Expected: +complex multi-phase tasks&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P6["**Phase 6 - Confidence gating**:&lt;br&gt;&lt;br&gt;Checkpoint scoring + recovery&lt;br&gt;&lt;br&gt;Expected: +reliability, -catastrophic failures&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P7["**Phase 7 - DPO data collection**:&lt;br&gt;&lt;br&gt;Use trajectory pairs for fine-tuning&lt;br&gt;&lt;br&gt;Expected: +specialised model performance on macOS environments&lt;br&gt;&lt;br&gt;OSWorld score: TBD"]
+    P8["**Phase 8 - Tauri app**:&lt;br&gt;&lt;br&gt;Wrap best config in desktop GUI, finalize UI.&lt;br&gt;&lt;br&gt;Horus v0.1!"]
+
+    P0 --&gt; P1 --&gt; P2 --&gt; P3 --&gt; P4 --&gt; P5 --&gt; P6 --&gt; P7 --&gt; P8</code></pre>
+
+        <hr>
+
+        <h2>12. Open Questions</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Question</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Best sub-1B grounding model</td>
+                    <td>Resolved</td>
+                    <td>From a parser perspective, OmniParser takes the cake.</td>
+                </tr>
+                <tr>
+                    <td>Agent S2 perception stack</td>
+                    <td>Untested</td>
+                    <td>Vision, OCR, Excel cells for Mixture of Grounding? More details need comprehensive investigation.</td>
+                </tr>
+                <tr>
+                    <td>OmniParser on macOS performance</td>
+                    <td>Untested</td>
+                    <td>Needs benchmark on Apple Silicon (vibe check should be good enough initially, benchmark exhaustively later on)</td>
+                </tr>
+                <tr>
+                    <td>Clean-license YOLO alternative</td>
+                    <td>Deferred</td>
+                    <td>Could use YOLO v10, or any other YOLO apart from v8 Nano? Have to look into performance tradeoffs.</td>
+                </tr>
+                <tr>
+                    <td>Fine-tuning data pipeline</td>
+                    <td>Deferred</td>
+                    <td>Use OSWorld + a11y API for auto-annotation? Have to determine data collection requirements before training starts to set up data flywheel.</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>13. Development Notes</h2>
+
+        <p>Core loop is observe -&gt; reason -&gt; execute.</p>
+
+        <ol>
+            <li>The observation layer includes getting information from the desktop environment, be it a VM, remote docker container, or the users laptop.</li>
+            <li>The reasoning layer is where the bulk of the work is, and all of the agent architecture based optimisations live. We define a standard output DSL, which we can then parse in the execution layer to OS level code implemented using Rust, pyautogui, or anything else.</li>
+            <li>The execution layer takes the output DSL from the reasoning layer, and parses it into OS code for pyautogui, OSWorld's action space, Rust, or anything else.</li>
+        </ol>
+
+        <br><br><br><br>
+    </div>
+</body>
+</html>
