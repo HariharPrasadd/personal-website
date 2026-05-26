@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <title>Decompiling Codex</title>
+    <meta name="description" content="Notes and build log for Decompiling Codex.">
+    <link rel="stylesheet" href="../../css/styles.css">
+
+    <link rel="icon" href="../../img/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../../img/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../../img/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../img/apple-touch-icon.png">
+
+    <link rel="manifest" href="../../img/site.webmanifest">
+    <meta name="theme-color" content="#ffffff">
+
+    <style>
+        /* This page keeps Mermaid self-contained instead of relying on shared site tooling. */
+        .diagram-shell {
+            width: 100%;
+            max-width: min(64rem, calc(100vw - 2rem));
+            margin: 2.5rem 0;
+            padding: 0.9rem 0;
+            border-top: 1px solid rgba(16, 15, 15, 0.1);
+            border-bottom: 1px solid rgba(16, 15, 15, 0.1);
+            box-sizing: border-box;
+        }
+
+        .diagram-canvas {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .diagram-shell--wide {
+            max-width: min(90rem, calc(100vw - 2rem));
+        }
+
+        /* The second diagram is treated more like a screenshot target, so we cap its height. */
+        .diagram-shell--compact .diagram-canvas {
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .diagram-shell {
+                max-width: 100%;
+            }
+        }
+    </style>
+
+    <script defer src="../../js/script.js"></script>
+    <script type="module">
+        import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'base',
+            securityLevel: 'strict',
+            themeVariables: {
+                primaryColor: '#DDEFEA',
+                primaryTextColor: '#100F0F',
+                primaryBorderColor: '#24837B',
+                lineColor: '#6F6E69',
+                secondaryColor: '#FFF0D9',
+                tertiaryColor: '#F8E8F4',
+                background: '#FFFCF0',
+                mainBkg: '#DDEFEA',
+                secondBkg: '#FFF0D9',
+                tertiaryBkg: '#F8E8F4',
+                nodeBorder: '#24837B',
+                clusterBkg: '#F2F0E5',
+                clusterBorder: '#DAD8CE',
+                edgeLabelBackground: '#FFFCF0',
+                fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+                fontSize: '16px'
+            },
+            flowchart: {
+                htmlLabels: true,
+                curve: 'linear'
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const diagrams = document.querySelectorAll('.diagram-instance');
+            if (!diagrams.length) {
+                return;
+            }
+
+            for (const [index, diagram] of diagrams.entries()) {
+                const el = diagram.querySelector('.mermaid');
+                const wrapper = diagram.querySelector('.diagram-canvas');
+                if (!el || !wrapper) {
+                    continue;
+                }
+
+                const { svg } = await mermaid.render(`mermaid-svg-${index}`, el.textContent);
+                wrapper.innerHTML = svg;
+
+                // Mermaid injects inline sizing that can pin the figure left, so we normalize it here.
+                const svgEl = wrapper.querySelector('svg');
+                if (svgEl) {
+                    svgEl.removeAttribute('style');
+                    svgEl.removeAttribute('width');
+                    svgEl.removeAttribute('height');
+                    svgEl.style.display = 'block';
+                    svgEl.style.margin = '0 auto';
+                    svgEl.style.maxWidth = '100%';
+                    svgEl.style.height = 'auto';
+
+                    if (diagram.classList.contains('diagram-shell--compact')) {
+                        svgEl.style.maxHeight = 'min(70vh, 42rem)';
+                        svgEl.style.width = 'auto';
+                    }
+
+                    // A few semantic accents give each diagram more hierarchy without heavy chrome.
+                    const nodes = svgEl.querySelectorAll('.node');
+                    nodes.forEach((node, nodeIndex) => {
+                        const shape = node.querySelector('rect, polygon, path');
+                        if (!shape) {
+                            return;
+                        }
+
+                        if (nodeIndex <= 1) {
+                            shape.style.fill = '#DDEFEA';
+                            shape.style.stroke = '#24837B';
+                        } else if (nodeIndex <= 5) {
+                            shape.style.fill = '#FFF0D9';
+                            shape.style.stroke = '#D0A215';
+                        } else if (nodeIndex <= 7) {
+                            shape.style.fill = '#E7EDF8';
+                            shape.style.stroke = '#205EA6';
+                        } else {
+                            shape.style.fill = '#F8E8F4';
+                            shape.style.stroke = '#A02F6F';
+                        }
+                    });
+
+                    const decision = svgEl.querySelector('.node:last-of-type polygon');
+                    if (decision) {
+                        decision.style.fill = '#FFF0D9';
+                        decision.style.stroke = '#D0A215';
+                    }
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="blogpost-container">
+        <div id="navigation-placeholder"></div>
+
+        <h1>Decompiling Codex</h1>
+        <div class="blog-date">April 17th, 2026</div><br>
+
+        <p>This page is the seed for a project writeup. The shared code block below is intentionally plain HTML so you can drop it into future essays or project pages without bringing in a framework or syntax highlighter dependency yet.</p>
+
+        <p>A more polished alternative to footnotes could be an inline peek: hover <span class="peek-ref" tabindex="0" data-peek="/Applications/Codex.app/Contents/Resources/plugins/openai-bundled/plugins/computer-use/Codex Computer Use.app/Contents/MacOS/SkyComputerUseService">SkyComputerUseService</span> or <span class="peek-ref" tabindex="0" data-peek="/Applications/Codex.app/Contents/Resources/plugins/openai-bundled/plugins/computer-use/Codex Computer Use.app/Contents/SharedSupport/SkyComputerUseClient.app/Contents/MacOS/SkyComputerUseClient">SkyComputerUseClient</span> and get the file path in place.</p>
+
+        <p>That keeps the interaction almost identical to the footnotes, just without needing a matching note block at the bottom of the page.</p>
+
+        <div class="code-block" data-language="html">
+            <pre><code>&lt;span
+  class="peek-ref"
+  tabindex="0"
+  data-peek="/Applications/Codex.app/.../SkyComputerUseService"
+&gt;SkyComputerUseService&lt;/span&gt;</code></pre>
+        </div>
+
+        <p>The only contract is: wrap a <code>pre</code> in a <code>.code-block</code>, optionally set <code>data-language</code>, and the shared JavaScript will add the header and copy button for you.</p>
+
+        <div class="code-block" data-language="javascript">
+            <pre><code>// Example rendered with the shared Flexoki-light primitive.
+async function decompileThought(prompt) {
+    const layers = ['intent', 'constraints', 'execution'];
+
+    return {
+        prompt,
+        layers,
+        status: 'in-progress'
+    };
+}</code></pre>
+        </div>
+
+        <div class="code-block" data-language="html">
+            <pre><code>&lt;div class="code-block" data-language="js"&gt;
+  &lt;pre&gt;&lt;code&gt;// Shared primitive for future project pages.
+const message = 'decompiling codex';
+console.log(message);
+  &lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+
+        <p>Mermaid diagrams now render as SVGs on the site, so system maps, schema views, and simulation flows can live inline with the writeup instead of as static images.</p>
+
+        <div class="diagram-shell diagram-instance diagram-shell--wide">
+            <center>
+                <div class="diagram-canvas">
+                    <pre class="mermaid">
+erDiagram
+    USER ||--o{ GROUP_MEMBERSHIP : joins
+    GROUP ||--o{ GROUP_MEMBERSHIP : has_members
+
+    USER ||--o{ MARKET : creates
+    USER ||--o{ MARKET : resolves
+    USER ||--o{ MARKET : edits
+    USER ||--o{ MARKET : cancels
+    USER ||--o{ MARKET : voids
+    USER ||--o{ MARKET : deletes
+    GROUP o|--o{ MARKET : contains_optional
+
+    USER ||--o{ MARKET_ORDER : orders_feed
+    MARKET ||--o{ MARKET_ORDER : ordered_for
+
+    MARKET ||--o{ MARKET_OPTION : has_options
+    USER o|--o{ MARKET_OPTION : subject_of
+
+    USER ||--o{ VOTE : casts
+    MARKET ||--o{ VOTE : has_votes
+    MARKET_OPTION ||--o{ VOTE : receives_votes
+
+    MARKET ||--o{ OPTION_HISTORY_POINT : has_history
+    MARKET_OPTION ||--o{ OPTION_HISTORY_POINT : has_history
+
+    MARKET ||--o{ RESOLUTION : has_resolution_records
+    USER ||--o{ RESOLUTION : resolves
+
+    RESOLUTION ||--o{ RESOLUTION_OPTION : records_outcomes
+    MARKET ||--o{ RESOLUTION_OPTION : outcome_scope
+    MARKET_OPTION ||--o{ RESOLUTION_OPTION : outcome_for
+
+    MARKET ||--o{ MARKET_EVENT : emits
+    USER ||--o{ MARKET_EVENT : acts_in
+
+    USER ||--o{ ELO_EVENT : affected_by
+    MARKET ||--o{ ELO_EVENT : impacts
+    GROUP o|--o{ ELO_EVENT : group_delta_for
+    RESOLUTION o|--o{ ELO_EVENT : caused_by
+    USER o|--o{ ELO_EVENT : reversed_by
+    ELO_EVENT o|--o{ ELO_EVENT : reverses
+
+    USER ||--o{ AUTH_SESSION : has_sessions
+    USER ||--o{ AUTH_ACCOUNT : has_accounts
+
+    AUTH_SESSION ||--o{ AUTH_REFRESH_TOKEN : rotates_tokens
+    AUTH_REFRESH_TOKEN o|--o{ AUTH_REFRESH_TOKEN : parent_of
+
+    AUTH_ACCOUNT ||--o{ AUTH_VERIFICATION_CODE : issues_codes
+    AUTH_SESSION o|--o{ AUTH_VERIFIER : owns_pkce_verifier
+
+    USER {
+        string _id
+        datetime _creationTime
+        string name "nullable"
+        string email "nullable"
+        number emailVerificationTime "nullable"
+        string image "nullable"
+        string phone "nullable"
+        number phoneVerificationTime "nullable"
+        boolean isAnonymous "nullable"
+        string username "nullable"
+        string displayName "nullable"
+        string avatarStorageId "nullable"
+        string color "nullable"
+        number elo "nullable"
+        number scheduledDeletionAt "nullable"
+    }
+
+    GROUP {
+        string _id
+        datetime _creationTime
+        string name
+        string color "nullable"
+        boolean leaderboardEnabled "nullable"
+        string inviteCode
+        string joinPasswordHash "nullable"
+        number joinPasswordUpdatedAt "nullable"
+        string groupIconEmoji "nullable"
+        string groupIconStorageId "nullable"
+        number memberCount
+        number openMarketCount
+        number deletedAt "nullable"
+    }
+
+    GROUP_MEMBERSHIP {
+        string _id
+        datetime _creationTime
+        string groupId
+        string userId
+        string role "admin | member"
+        number elo
+        number rank "nullable"
+    }
+
+    MARKET {
+        string _id
+        datetime _creationTime
+        string groupId "nullable"
+        string createdByUserId
+        string resolverUserId
+        string question
+        string rules
+        string color "nullable"
+        string marketIconEmoji "nullable"
+        string marketIconStorageId "nullable"
+        string kind "binary | multi_binary"
+        string status "open | locked | resolved | void | cancelled"
+        string slug
+        boolean isPublic
+        number predictionCount
+        number participantCount
+        number closesAt
+        number lockedAt "nullable"
+        number resolvedAt "nullable"
+        number cancelledAt "nullable"
+        number voidedAt "nullable"
+        number deletedAt "nullable"
+        number editedAt "nullable"
+        number lastActivityAt "nullable"
+        string editedByUserId "nullable"
+        string cancelledByUserId "nullable"
+        string voidedByUserId "nullable"
+        string deletedByUserId "nullable"
+    }
+
+    MARKET_ORDER {
+        string _id
+        datetime _creationTime
+        string userId
+        string marketId
+        number rank "nullable"
+    }
+
+    MARKET_OPTION {
+        string _id
+        datetime _creationTime
+        string marketId
+        string label
+        string color "nullable"
+        string optionIconEmoji "nullable"
+        string optionIconStorageId "nullable"
+        string subjectUserId "nullable"
+        number yesVotes
+        number noVotes
+        string resolvedOutcome "yes | no | null"
+    }
+
+    VOTE {
+        string _id
+        datetime _creationTime
+        string marketId
+        string optionId
+        string userId
+        string vote "yes | no"
+    }
+
+    OPTION_HISTORY_POINT {
+        string _id
+        datetime _creationTime
+        string marketId
+        string optionId
+        number t
+        number yesVotes
+        number noVotes
+        number yesShare
+        string eventType
+    }
+
+    RESOLUTION {
+        string _id
+        datetime _creationTime
+        string marketId
+        string resolvedByUserId
+        number resolvedAt
+        string explanation "nullable"
+        string status "active | voided"
+        number voidedAt "nullable"
+        string voidedByUserId "nullable"
+        string voidReason "nullable"
+    }
+
+    RESOLUTION_OPTION {
+        string _id
+        datetime _creationTime
+        string resolutionId
+        string marketId
+        string optionId
+        string outcome "yes | no"
+    }
+
+    MARKET_EVENT {
+        string _id
+        datetime _creationTime
+        string marketId
+        string actorUserId
+        string type "created | edited | locked | resolved | voided | voided_after_resolution | cancelled | resolver_changed"
+        string message "nullable"
+        string[] changedFields "nullable"
+        number createdAt
+    }
+
+    ELO_EVENT {
+        string _id
+        datetime _creationTime
+        string userId
+        string marketId
+        string groupId "nullable"
+        string resolutionId "nullable"
+        number createdAt
+        number oldElo
+        number newElo
+        number oldGroupElo "nullable"
+        number newGroupElo "nullable"
+        number globalDelta
+        number groupDelta "nullable"
+        boolean groupEloApplied "nullable"
+        string reason "market_resolution | manual_adjustment | reversal | null"
+        boolean isReversal "nullable"
+        number reversedAt "nullable"
+        string reversedByUserId "nullable"
+        string reversalEventId "nullable"
+        string reversalOfEventId "nullable"
+    }
+
+    PENDING_SIGNUP {
+        string _id
+        datetime _creationTime
+        string email
+        string username
+        string displayName "nullable"
+        string codeHash
+        number createdAt
+        number expiresAt
+        number attempts
+        number lastSentAt
+    }
+
+    PENDING_PASSWORD_RESET {
+        string _id
+        datetime _creationTime
+        string email
+        string tokenHash
+        number createdAt
+        number expiresAt
+        number attempts
+        number lastSentAt
+    }
+
+    AUTH_SESSION {
+        string _id
+        datetime _creationTime
+        string userId
+        number expirationTime
+    }
+
+    AUTH_ACCOUNT {
+        string _id
+        datetime _creationTime
+        string userId
+        string provider
+        string providerAccountId
+        string secret "nullable"
+        string emailVerified "nullable"
+        string phoneVerified "nullable"
+    }
+
+    AUTH_REFRESH_TOKEN {
+        string _id
+        datetime _creationTime
+        string sessionId
+        number expirationTime
+        number firstUsedTime "nullable"
+        string parentRefreshTokenId "nullable"
+    }
+
+    AUTH_VERIFICATION_CODE {
+        string _id
+        datetime _creationTime
+        string accountId
+        string provider
+        string code
+        number expirationTime
+        string verifier "nullable"
+        string emailVerified "nullable"
+        string phoneVerified "nullable"
+    }
+
+    AUTH_VERIFIER {
+        string _id
+        datetime _creationTime
+        string sessionId "nullable"
+        string signature "nullable"
+    }
+
+    AUTH_RATE_LIMIT {
+        string _id
+        datetime _creationTime
+        string identifier
+        number lastAttemptTime
+        number attemptsLeft
+    }
+                    </pre>
+                </div>
+            </center>
+        </div>
+
+        <div class="diagram-shell diagram-instance diagram-shell--compact">
+            <center>
+                <div class="diagram-canvas">
+                    <pre class="mermaid">
+flowchart TD
+    A["Collect transit data: \n walk + jog + run"] --> B["Fit log-normal"]
+    B --> C["Choose scenario"]
+
+    C --> S1["1 exit"]
+    C --> S2["2 exits"]
+    C --> S3["2 exits + slow response"]
+
+    S1 --> D["Run 2000 trials"]
+    S2 --> D
+    S3 --> D
+
+    D --> E["Create 80 agents: \n 20 per floor"]
+    E --> F["Sample response delay and movement time"]
+    F --> G["Compute stair arrival"]
+    G --> H{"Exits?"}
+
+    H -->|1| I["One queue"]
+    H -->|2| J["Two queues"]
+
+    I --> K["Process stairwell queue"]
+    J --> K
+
+    K --> L["Sample final exit travel"]
+    L --> M["Record last person out"]
+    M --> N["Summarize results: \n mean, 95th pct, CI, t-test"]
+                    </pre>
+                </div>
+            </center>
+        </div>
+
+        <p>If you want, we can turn this page into a fuller project case study next: screenshots, architecture notes, and a more opinionated writing layout.</p>
+        <br><br><br><br><br><br>
+    </div>
+</body>
+</html>

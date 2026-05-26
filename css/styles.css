@@ -13,6 +13,21 @@
     --foreground: rgb(16, 15, 15);
     --accent: rgb(36, 131, 123);
     --highlight: rgb(208, 162, 21);
+
+    /* Flexoki light tokens keep the code block feeling editorial, not app-like. */
+    --code-bg: rgb(255, 252, 240);
+    --code-surface: rgb(242, 240, 229);
+    --code-border: rgb(218, 214, 203);
+    --code-foreground: rgb(16, 15, 15);
+    --code-muted: rgb(111, 110, 105);
+    --code-blue: rgb(32, 94, 166);
+    --code-cyan: rgb(36, 131, 123);
+    --code-green: rgb(102, 128, 11);
+    --code-orange: rgb(188, 82, 21);
+    --code-red: rgb(175, 48, 41);
+    --code-yellow: rgb(173, 131, 1);
+    --code-purple: rgb(94, 64, 157);
+    --code-magenta: rgb(160, 47, 111);
     
 }
 
@@ -95,6 +110,23 @@ body, html {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+.about-container {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem 3rem;
+    box-sizing: border-box;
+}
+
+.about-container p {
+    max-width: 50vw;
+    text-align: center;
 }
 
 .quote {
@@ -380,6 +412,196 @@ a:hover {
     white-space: pre;
 }
 
+/* Shared Flexoki light code block primitives for project and essay pages. */
+.code-block {
+    position: relative;
+    width: 100%;
+    max-width: 50vw;
+    margin: 1.75rem 0;
+    border: 1px solid var(--code-border);
+    border-radius: 12px;
+    background: linear-gradient(180deg, var(--code-surface) 0%, var(--code-bg) 100%);
+    color: var(--code-foreground);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.code-block__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0.8rem;
+    border-bottom: 1px solid rgba(16, 15, 15, 0.08);
+    background-color: rgba(242, 240, 229, 0.95);
+}
+
+.code-block__meta {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.code-block__label {
+    font-family: "SFMono-Regular", "SF Mono", Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--code-muted);
+    white-space: nowrap;
+}
+
+.code-block__copy {
+    background-color: transparent;
+    color: var(--code-muted);
+    border: 0;
+    padding: 0.1rem;
+    font: inherit;
+    line-height: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.code-block__copy:hover,
+.code-block__copy:focus-visible {
+    color: var(--code-foreground);
+}
+
+.code-block__copy.is-copied {
+    color: var(--code-green);
+}
+
+.code-block__copy.is-copied:hover,
+.code-block__copy.is-copied:focus-visible {
+    color: var(--code-green);
+}
+
+.code-block__copy svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.code-block pre {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 1rem 1.1rem 1.2rem;
+    overflow-x: auto;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+.code-block code {
+    display: block;
+    font-family: "SFMono-Regular", "SF Mono", Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: inherit;
+    white-space: pre;
+}
+
+/* Token colors align with the official Flexoki Light editor theme. */
+.code-block .token-comment {
+    color: var(--code-muted);
+    font-style: italic;
+}
+
+.code-block .token-doc-comment {
+    color: var(--code-border);
+    font-style: italic;
+}
+
+.code-block .token-operator,
+.code-block .token-punctuation {
+    color: var(--code-muted);
+}
+
+.code-block .token-operator,
+.code-block .token-keyword-control,
+.code-block .token-module {
+    color: var(--code-red);
+}
+
+.code-block .token-keyword,
+.code-block .token-control,
+.code-block .token-method {
+    color: var(--code-green);
+}
+
+.code-block .token-storage,
+.code-block .token-property,
+.code-block .token-tag,
+.code-block .token-macro,
+.code-block .token-url {
+    color: var(--code-blue);
+}
+
+.code-block .token-function,
+.code-block .token-class,
+.code-block .token-struct,
+.code-block .token-enum,
+.code-block .token-key,
+.code-block .token-type-parameter {
+    color: var(--code-orange);
+}
+
+.code-block .token-function {
+    font-weight: 600;
+}
+
+.code-block .token-string,
+.code-block .token-cyan {
+    color: var(--code-cyan);
+}
+
+.code-block .token-number,
+.code-block .token-purple {
+    color: var(--code-purple);
+}
+
+.code-block .token-attribute,
+.code-block .token-boolean,
+.code-block .token-type,
+.code-block .token-namespace,
+.code-block .token-decorator {
+    color: var(--code-yellow);
+}
+
+.code-block .token-global,
+.code-block .token-preprocessor,
+.code-block .token-label,
+.code-block .token-jsx-tag,
+.code-block .token-exception {
+    color: var(--code-magenta);
+}
+
+.code-block .token-number,
+.code-block .token-constant {
+    color: var(--code-purple);
+}
+
+.code-block .token-string {
+    color: var(--code-cyan);
+}
+
+.code-block .token-variable,
+.code-block .token-parameter,
+.code-block .token-call,
+.code-block .token-plain {
+    color: var(--code-foreground);
+}
+
+/* Mermaid diagrams inherit the site's quiet editorial treatment. */
 .horus-post h1,
 .horus-post h2,
 .horus-post h3,
@@ -456,6 +678,55 @@ a:hover {
     max-width: 100%;
     margin: 0;
     line-height: 1.5;
+}
+
+/* Metadata previews mirror the footnote interaction but stay inline with the copy. */
+.peek-ref {
+    color: var(--code-blue);
+    cursor: help;
+}
+
+.peek-popup {
+    position: fixed;
+    z-index: 1000;
+    max-width: min(32rem, calc(100vw - 2rem));
+    padding: 0.75rem 0.9rem;
+    background-color: rgba(255, 252, 240, 0.98);
+    border: 1px solid rgba(16, 15, 15, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(16, 15, 15, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+    pointer-events: auto;
+    user-select: text;
+}
+
+.peek-popup__summary {
+    margin: 0;
+    max-width: 100%;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: left;
+    white-space: pre-wrap;
+}
+
+.peek-popup code {
+    display: block;
+    font-family: "SFMono-Regular", "SF Mono", Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--code-blue);
+    white-space: pre-wrap;
+    word-break: break-word;
+    cursor: text;
+}
+
+.peek-popup.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 blockquote {
@@ -587,6 +858,10 @@ code {
     .blogpost-container {
         padding: 1rem;
     }
+
+    .about-container p {
+        max-width: 100%;
+    }
     
     .blogpost-container p {
         max-width: 100%;
@@ -598,7 +873,9 @@ code {
     .blogpost-container ul,
     .blogpost-container ol,
     .blogpost-container table,
-    .blogpost-container pre {
+    .blogpost-container pre,
+    .code-block,
+    .mermaid-wrapper {
         max-width: 100%;
     }
 
@@ -607,6 +884,10 @@ code {
     }
 
     .footnote-popup {
+        display: none;
+    }
+
+    .peek-popup {
         display: none;
     }
     

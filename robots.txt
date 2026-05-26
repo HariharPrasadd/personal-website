@@ -59,7 +59,7 @@ Allow: /about.html
 Allow: /books.html
 Allow: /notes.html
 Allow: /blog.html
-Allow: /contact.html
+Allow: /socials.html
 
 # Blog posts
 Allow: /pages/blog/
