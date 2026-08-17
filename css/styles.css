@@ -927,7 +927,6 @@ img {
 }
 
 .cover-image{
-    min-width: 400px;
-    width: 50vw;
+    width: 15vw;
     height: auto;
 }
