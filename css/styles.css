@@ -739,6 +739,11 @@ blockquote {
     margin-bottom: 1.5rem;
 }
 
+/* Zarathustra excerpts use roman text; their explicit <em> text stays italic. */
+.zarathustra-post blockquote {
+    font-style: normal;
+}
+
 .blogpost-container hr {
     display: block;
     height: 1px;
