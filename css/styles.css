@@ -739,9 +739,12 @@ blockquote {
     margin-bottom: 1.5rem;
 }
 
-/* Zarathustra excerpts use roman text; their explicit <em> text stays italic. */
+/* Zarathustra excerpts share one left edge and preserve explicit emphasis. */
 .zarathustra-post blockquote {
+    box-sizing: border-box;
     font-style: normal;
+    margin-right: 0;
+    width: 100%;
 }
 
 .blogpost-container hr {
