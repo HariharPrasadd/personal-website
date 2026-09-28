@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <title>AR BOM</title>
+    <meta name="description" content="Bill of materials and SoC requirements for the V0 augmented-reality hardware prototype.">
+    <link rel="stylesheet" href="../../css/styles.css">
+
+    <link rel="icon" href="../../img/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="16x16" href="../../img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../../img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="../../img/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="../../img/android-chrome-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../../img/apple-touch-icon.png">
+
+    <link rel="manifest" href="../../img/site.webmanifest">
+    <meta name="theme-color" content="#ffffff">
+
+    <script defer src="../../js/script.js"></script>
+</head>
+<body>
+    <div class="blogpost-container">
+        <div id="navigation-placeholder"></div>
+        <h1>AR BOM</h1>
+        <div class="blog-date">September 27th, 2026</div><br>
+
+        <h2>V0</h2>
+
+        <h3>Peripherals</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Peripheral</th>                <th>Main data interface</th>                <th>Secondary/control interface</th>                <th>Demands on SoC</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Left NIR eye camera</td>                <td>MIPI CSI-2</td>                <td>I²C + GPIO/reset + clock</td>                <td>Camera receiver, RAW sensor support, low-latency capture</td>
+            </tr>
+            <tr>
+                <td>Right NIR eye camera</td>                <td>MIPI CSI-2</td>                <td>I²C + GPIO/reset + clock</td>                <td>Camera receiver, RAW sensor support, low-latency capture</td>
+            </tr>
+            <tr>
+                <td>Left RGB world camera</td>                <td>MIPI CSI-2</td>                <td>I²C + GPIO/reset + clock</td>                <td>Camera receiver + ISP, considerably more bandwidth, stereo sync</td>
+            </tr>
+            <tr>
+                <td>Right RGB world camera</td>                <td>MIPI CSI-2</td>                <td>I²C + GPIO/reset + clock</td>                <td>Camera receiver + ISP, considerably more bandwidth, stereo sync</td>
+            </tr>
+            <tr>
+                <td>IMU</td>                <td>I²C or SPI</td>                <td>GPIO interrupt, optional sync input</td>                <td>High-rate readout, precise timestamping, possible camera/IMU synchronizatio</td>
+            </tr>
+            <tr>
+                <td>Microdisplay/HUD</td>                <td>Ideally MIPI DSI</td>                <td>Possibly I²C/SPI for display control</td>                <td>Display controller + DSI output</td>
+            </tr>
+            <tr>
+                <td>Touch ring</td>                <td>Bluetooth LE</td>                <td>—</td>                <td>BLE central support with low-latency application access</td>
+            </tr>
+            <tr>
+                <td>NIR LED illumination</td>                <td>GPIO/PWM or LED-driver IC</td>                <td>Possibly I²C</td>                <td>Almost negligible SoC burden</td>
+            </tr>
+            <tr>
+                <td>Battery/power subsystem</td>                <td>PMIC-dependent</td>                <td>I²C/SPMI/etc.</td>                <td>Compatible PMIC, DVFS, sleep states, battery operation</td>
+            </tr>
+            <tr>
+                <td>Debug/programming</td>                <td>USB</td>                <td>—</td>                <td>At least one usable USB interface</td>
+            </tr>
+            <tr>
+                <td>Persistent storage</td>                <td>eMMC/UFS</td>                <td>Native memory interface</td>                <td>Enough bandwidth for OS/models/video</td>
+            </tr>
+            <tr>
+                <td>RAM</td>                <td>LPDDR</td>                <td>Native memory interface</td>                <td>Enough capacity/bandwidth for CV + inference</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>SoC requirements</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Requirement</th>                <th>Target</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Concurrent cameras</td>                <td>(&gt;= 4) simultaneous streams</td>
+            </tr>
+            <tr>
+                <td>Camera type</td>                <td>MIPI CSI-2</td>
+            </tr>
+            <tr>
+                <td>Eye cameras</td>                <td>2 simultaneous low-latency mono/global-shutter streams</td>
+            </tr>
+            <tr>
+                <td>World cameras</td>                <td>2 simultaneous RGB streams with ISP support, synchronised stereo pair</td>
+            </tr>
+            <tr>
+                <td>Stereo synchronization</td>                <td>Hardware-trigger or tightly synchronized capture for world-camera pair</td>
+            </tr>
+            <tr>
+                <td>Camera timestamping</td>                <td>Accurate per-frame timestamps</td>
+            </tr>
+            <tr>
+                <td>IMU timestamping</td>                <td>Accurate high-rate timestamps synchronized with camera timebase if possible</td>
+            </tr>
+            <tr>
+                <td>CSI capacity</td>                <td>Enough CSI receivers / lanes / virtual-channel support for all 4 cameras</td>
+            </tr>
+            <tr>
+                <td>ISP capacity</td>                <td>At least 2 simultaneous RGB ISP pipelines; eye cameras can ideally bypass heavy ISP</td>
+            </tr>
+            <tr>
+                <td>Display</td>                <td>At least 1 MIPI DSI</td>
+            </tr>
+            <tr>
+                <td>AI acceleration</td>                <td>Preferably \(\ge 10\) TOPS for long-term architecture</td>
+            </tr>
+            <tr>
+                <td>GPU</td>                <td>Vulkan/OpenGL-class</td>
+            </tr>
+            <tr>
+                <td>CPU</td>                <td>Modern multi-core ARM64</td>
+            </tr>
+            <tr>
+                <td>RAM</td>                <td>Prefer 8 GB development configuration</td>
+            </tr>
+            <tr>
+                <td>Memory bandwidth</td>                <td>High enough for 4 camera streams + GPU/NPU workloads concurrently</td>
+            </tr>
+            <tr>
+                <td>Storage</td>                <td>eMMC/UFS</td>
+            </tr>
+            <tr>
+                <td>Bluetooth</td>                <td>BLE 5.x usable from OS; must support acting as BLE central for ring</td>
+            </tr>
+            <tr>
+                <td>Wi-Fi</td>                <td>Wi-Fi 6+</td>
+            </tr>
+            <tr>
+                <td>USB</td>                <td>USB 3 preferred</td>
+            </tr>
+            <tr>
+                <td>IMU interface</td>                <td>At least one usable SPI or I²C controller; SPI preferred if high-rate/low-latency sampling is needed</td>
+            </tr>
+            <tr>
+                <td>GPIO / PWM</td>                <td>Enough GPIO for camera reset/power-down, sync/trigger, NIR LED control, interrupts</td>
+            </tr>
+            <tr>
+                <td>OS</td>                <td>Linux strongly preferred</td>
+            </tr>
+            <tr>
+                <td>Camera framework</td>                <td>Drivers/BSP must support simultaneous capture from all 4 sensors</td>
+            </tr>
+            <tr>
+                <td>Hardware video</td>                <td>Hardware encode/decode useful for logging/streaming world-camera feeds</td>
+            </tr>
+            <tr>
+                <td>Power</td>                <td>Mobile/embedded class</td>
+            </tr>
+            <tr>
+                <td>DVFS / low-power states</td>                <td>Required; fine-grained power management strongly preferred</td>
+            </tr>
+            <tr>
+                <td>Thermal envelope</td>                <td>Suitable for battery-powered wearable use</td>
+            </tr>
+            <tr>
+                <td>Development hardware</td>                <td>Must actually be obtainable in low quantity</td>
+            </tr>
+            <tr>
+                <td>Camera drivers</td>                <td>Extremely important</td>
+            </tr>
+            <tr>
+                <td>Documentation</td>                <td>Must be usable without impossible NDA barriers</td>
+            </tr>
+            <tr>
+                <td>Product lifetime</td>                <td>Prefer long-lifecycle embedded part</td>
+            </tr>
+            <tr>
+                <td>Dev-kit exposure</td>                <td>Dev kit must physically expose enough CSI/DSI/GPIO interfaces to test the full V0</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h3>Product links</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Component</th>                <th>Buy here</th>                <th>Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>Qualcomm RB3 Gen 2 Vision Kit</td>                <td><a href="https://www.thundercomm.com/product/qualcomm-rb3-gen-2/?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Thundercomm</a></td>                <td>$639</td>
+            </tr>
+            <tr>
+                <td>Extra OV9282 eye camera + flex</td>                <td><a href="https://www.thundercomm.com/product/qualcomm-rb3-gen-2/?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Thundercomm — accessory on RB3 page</a></td>                <td>$39</td>
+            </tr>
+            <tr>
+                <td>Extra IMX577 world camera + FPC</td>                <td><a href="https://www.thundercomm.com/product/qualcomm-rb3-gen-2/?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Thundercomm — accessory on RB3 page</a></td>                <td>$164</td>
+            </tr>
+            <tr>
+                <td><a href="https://www.yxmicrodisplay.com/products/0-39-inch-1024x768-micro-oled-display-with-hdm1-controller-board-for-ar-vr?utm_campaign=openai_catalog&amp;amp;utm_content=product_card&amp;amp;utm_medium=feed&amp;amp;variant=40106601775171&amp;amp;utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">0.39-inch 1024×768 micro-OLED + HDMI controller</a></td>                <td><a href="https://www.yxmicrodisplay.com/products/0-39-inch-1024x768-micro-oled-display-with-hdm1-controller-board-for-ar-vr?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">YX Microdisplay</a></td>                <td>$199 ($157 + $42 for shipping)</td>
+            </tr>
+            <tr>
+                <td>Ring MCU — XIAO nRF52840 Plus</td>                <td><a href="https://www.seeedstudio.com/Seeed-Studio-XIAO-nRF52840-Plus-p-6359.html?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Seeed Studio</a></td>                <td>$17.23 ($10.40 + $6.20 shipping + $0.63 sales tax)</td>
+            </tr>
+            <tr>
+                <td>Ring capacitive-touch controller — IQS7211A</td>                <td><a href="https://www.mouser.com/ProductDetail/Azoteq/IQS7211A101CSR?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Mouser</a></td>                <td>$14.25 ($5.76 for 10 + $8.49 shipping charge)</td>
+            </tr>
+            <tr>
+                <td><a href="https://www.robotshop.com/products/sparkfun-micro-6dof-imu-breakout-bmi270-qwiic?utm_campaign=openai_catalog&amp;amp;utm_content=product_card&amp;amp;utm_medium=feed&amp;amp;variant=43318332620961&amp;amp;utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">SparkFun Micro BMI270 IMU breakout</a></td>                <td><a href="https://www.sparkfun.com/sparkfun-micro-6dof-imu-breakout-bmi270-qwiic.html?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">SparkFun</a></td>                <td>$28.86 ($18.64 + $10.22 shipping + $1.06 tax)</td>
+            </tr>
+            <tr>
+                <td>850 nm NIR LED — Vishay VSMA1085750X02</td>                <td><a href="https://www.digikey.com/en/products/detail/vishay-semiconductor-opto-division/VSMA1085750X02/22216298?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">DigiKey</a></td>                <td>$22.19 ($12.92 for 4 + $8.49 shipping + $0.78 sales tax)</td>
+            </tr>
+            <tr>
+                <td>Batteries: Ring battery — 3.7 V 100 mAh protected LiPo, Temporary rear compute-box battery — 3.7 V 2500 mAh protected LiPo</td>                <td><a href="https://www.adafruit.com/product/1570?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Adafruit</a>, <a href="https://www.adafruit.com/category/574?utm_source=chatgpt.com" class="link" target="_blank" rel="noopener noreferrer">Adafruit battery category</a></td>                <td>$41.21 ($5.95 + $14.95 + $19.06 shipping + $1.25 tax)</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>Total: $1164.74</p>
+
+        <h3>Miscellaneous items</h3>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Category</th>                <th>Rough budget</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>FFC/FPC cables, extensions, adapters</td>                <td>$30–60</td>
+            </tr>
+            <tr>
+                <td>Hookup wire, headers, JST pigtails, switches</td>                <td>$20–30</td>
+            </tr>
+            <tr>
+                <td>Power-bank / USB-C cables / small regulators</td>                <td>$25–50</td>
+            </tr>
+            <tr>
+                <td>NIR LED driver bits, MOSFETs, passives</td>                <td>$15–30</td>
+            </tr>
+            <tr>
+                <td>Mechanical mounting, tape, Velcro, screws, standoffs</td>                <td>$20–40</td>
+            </tr>
+            <tr>
+                <td>Ring/slider wiring accessories</td>                <td>$10–20</td>
+            </tr>
+            <tr>
+                <td>Debug odds and ends / spare adapters</td>                <td>$20–40</td>
+            </tr>
+            <tr>
+                <td>Spare cables / contingency</td>                <td>$20–40</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <p>Lower bound: $160</p>
+
+        <p>Upper bound: $310</p>
+
+        <p>Total budget required for V0: ~$1500</p>
+
+        <br><br><br><br>
+    </div>
+</body>
+</html>

@@ -9,6 +9,7 @@ appears across this site:
 - paragraphs
 - blockquotes using `>`
 - unordered and ordered lists
+- pipe-delimited tables
 - fenced code blocks
 - inline emphasis, code, and links
 - footnote references `[^1]` and footnote definitions `[^1]: ...`
@@ -42,6 +43,7 @@ CODE_RE = re.compile(r"`([^`]+)`")
 EM_RE = re.compile(r"(?<!\*)\*([^*]+)\*(?!\*)")
 STRONG_RE = re.compile(r"(?<!\*)\*\*([^*]+)\*\*(?!\*)")
 UNDERSCORE_EM_RE = re.compile(r"(?<![\w_])_([^_]+)_(?![\w_])")
+TABLE_SEPARATOR_CELL_RE = re.compile(r"^:?-{2,}:?$")
 
 
 @dataclass
@@ -209,6 +211,35 @@ def extract_footnotes(lines: list[str]) -> tuple[list[str], dict[str, str]]:
     return body_lines, footnotes
 
 
+def split_table_row(line: str) -> list[str]:
+    """Split one simple pipe-delimited row into trimmed cell values."""
+    row = line.strip()
+    if row.startswith("|"):
+        row = row[1:]
+    if row.endswith("|"):
+        row = row[:-1]
+    return [cell.strip() for cell in row.split("|")]
+
+
+def is_table_separator(line: str) -> bool:
+    """Return whether a row is the Markdown divider beneath table headers."""
+    cells = split_table_row(line)
+    return bool(cells) and all(TABLE_SEPARATOR_CELL_RE.fullmatch(cell) for cell in cells)
+
+
+def starts_table(lines: list[str], index: int) -> bool:
+    """Identify a table from its header row and required divider row."""
+    if index + 1 >= len(lines) or "|" not in lines[index]:
+        return False
+    header_cells = split_table_row(lines[index])
+    divider_cells = split_table_row(lines[index + 1])
+    return (
+        len(header_cells) >= 2
+        and len(header_cells) == len(divider_cells)
+        and is_table_separator(lines[index + 1])
+    )
+
+
 def split_blocks(lines: list[str]) -> list[Block]:
     """Turn raw Markdown lines into coarse blocks.
 
@@ -264,6 +295,16 @@ def split_blocks(lines: list[str]) -> list[Block]:
                 )
             )
             index += 1
+            continue
+
+        if starts_table(lines, index):
+            # Store the header and body rows; the Markdown divider is structural only.
+            table_rows = [lines[index]]
+            index += 2
+            while index < len(lines) and "|" in lines[index] and lines[index].strip():
+                table_rows.append(lines[index])
+                index += 1
+            blocks.append(Block(kind="table", lines=table_rows))
             continue
 
         if ORDERED_LIST_RE.match(stripped):
@@ -520,6 +561,26 @@ def render_blocks(blocks: Iterable[Block]) -> str:
             code_text = html.escape("\n".join(block.lines), quote=False)
             rendered.append(
                 f"        <pre><code{language_class}>{code_text}</code></pre>"
+            )
+        elif block.kind == "table":
+            rows = [split_table_row(row) for row in block.lines]
+            header = "".join(f"                <th>{render_inline(cell)}</th>" for cell in rows[0])
+            body_rows = []
+            for row in rows[1:]:
+                cells = "".join(f"                <td>{render_inline(cell)}</td>" for cell in row)
+                body_rows.append(f"            <tr>\n{cells}\n            </tr>")
+            body = "\n".join(body_rows)
+            rendered.append(
+                "        <table>\n"
+                "            <thead>\n"
+                "            <tr>\n"
+                f"{header}\n"
+                "            </tr>\n"
+                "            </thead>\n"
+                "            <tbody>\n"
+                f"{body}\n"
+                "            </tbody>\n"
+                "        </table>"
             )
         else:
             raise ValueError(f"Unsupported block kind: {block.kind}")
