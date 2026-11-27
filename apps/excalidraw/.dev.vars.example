@@ -1,3 +1,0 @@
-# Copy this file to .dev.vars for local Worker development only.
-APP_PASSWORD="choose-a-local-password"
-SESSION_SECRET="replace-with-a-long-random-value"
