@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "harihar-drawings",
+  "pages_build_output_dir": "./dist",
+  "compatibility_date": "2026-11-26",
+  "d1_databases": [
+    {
+      "binding": "EXCALIDRAW_DB",
+      "database_name": "harihar-excalidraw",
+      "database_id": "f0ac3d59-20db-47fb-94b2-32eb32a1ba78"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "EXCALIDRAW_FILES",
+      "bucket_name": "harihar-excalidraw-files"
+    }
+  ]
+}
